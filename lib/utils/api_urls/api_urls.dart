@@ -32,4 +32,5 @@ class ApiUrls {
   static String saveStations() => '$base/evaluations/save';
   static String calculate() => '$base/evaluations/calculate';
   static String getSavedStations() => '$base/evaluations/saved';
+  static String getSaveDetails({required String id})=> '$base/evaluations/$id';
 }

@@ -39,7 +39,16 @@ class _SaveScreenState extends State<SaveScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final savedList = _controller.savedModel.value.data ?? [];
+        final rawList = _controller.savedModel.value.data ?? [];
+
+        // Deduplicate by id
+        final seenIds = <String>{};
+        final savedList = rawList.where((item) {
+          final id = item.id ?? '';
+          if (seenIds.contains(id)) return false;
+          seenIds.add(id);
+          return true;
+        }).toList();
 
         if (savedList.isEmpty) {
           return const Center(
@@ -50,22 +59,26 @@ class _SaveScreenState extends State<SaveScreen> {
           );
         }
 
-        return ListView.separated(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          itemCount: savedList.length,
-          separatorBuilder: (context, index) => Gap(12.h),
-          itemBuilder: (context, index) {
-            final item = savedList[index];
-            final timeStr = item.savedAt != null
-                ? DateFormat('MMM d, yyyy').format(item.savedAt!)
-                : "";
-            return _buildSavedItem(
-              context,
-              item.location ?? item.stationName ?? "Unknown Location",
-              timeStr,
-              item.simpleLabel ?? "",
-            );
-          },
+        return RefreshIndicator(
+          onRefresh: () => _controller.getSavedStations(),
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            itemCount: savedList.length,
+            separatorBuilder: (context, index) => Gap(12.h),
+            itemBuilder: (context, index) {
+              final item = savedList[index];
+              final timeStr = item.savedAt != null
+                  ? DateFormat('MMM d, yyyy').format(item.savedAt!)
+                  : "";
+              return _buildSavedItem(
+                context,
+                item.location ?? item.stationName ?? "Unknown Location",
+                timeStr,
+                item.simpleLabel ?? "",
+                item.id ?? "",
+              );
+            },
+          ),
         );
       }),
     );
@@ -76,10 +89,11 @@ class _SaveScreenState extends State<SaveScreen> {
     String location,
     String time,
     String label,
+    String id,
   ) {
     return GestureDetector(
       onTap: () {
-        context.pushNamed(RoutePath.resultSummaryScreen);
+        context.pushNamed(RoutePath.saveDetailsScreen,extra: id );
       },
       child: Container(
         width: double.infinity,

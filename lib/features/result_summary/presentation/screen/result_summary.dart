@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/features/result_summary/controller/result_summary_controller.dart';
 import 'package:weather_app/helper/toast/toast_helper.dart';
 import 'package:weather_app/features/result_summary/presentation/screen/widgets/additional_info_widget.dart';
@@ -65,11 +67,16 @@ class ResultSummaryScreen extends StatelessWidget {
             Gap(32.h),
 
             // Footer
-            Text(
-              "${AppStrings.climateReferencePeriod.tr}: ${resultData?.climateReferencePeriod ?? '1971-2000'}",
-              style: context.bodySmall.copyWith(
-                color: AppColors.secondaryText,
-                fontWeight: FontWeight.w500,
+            GestureDetector(
+              onTap: () {
+                context.pushNamed(RoutePath.referenceScreen);
+              },
+              child: Text(
+                "${AppStrings.climateReferencePeriod.tr}: ${resultData?.climateReferencePeriod ?? '1971-2000'}",
+                style: context.bodySmall.copyWith(
+                  color: AppColors.secondaryText,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             Gap(20.h),

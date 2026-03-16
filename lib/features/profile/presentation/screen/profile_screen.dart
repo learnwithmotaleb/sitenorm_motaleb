@@ -95,6 +95,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       ProfileMenuItem(
+                        icon: Icons.book_outlined,
+                        title: "Reference",
+                        onTap: () {
+                          context.pushNamed(RoutePath.referenceScreen);
+                        },
+                      ),
+                      ProfileMenuItem(
                         icon: Icons.logout,
                         title: AppStrings.logout.tr,
                         onTap: () {

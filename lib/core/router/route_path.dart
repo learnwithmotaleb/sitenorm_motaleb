@@ -22,4 +22,6 @@ class RoutePath {
   static const String contactSupportScreen = 'contactSupportScreen';
   static const String termsAndConditionScreen = 'termsAndConditionScreen';
   static const String privacyPolicyScreen = 'privacyPolicyScreen';
+  static const String referenceScreen = 'referenceScreen';
+  static const String saveDetailsScreen = 'saveDetailsScreen';
 }

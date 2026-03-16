@@ -9,6 +9,7 @@ import 'package:weather_app/features/auth/presentation/screen/forget_password_sc
 import 'package:weather_app/features/auth/presentation/screen/reset_password_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/welcome_back_screen.dart';
 import 'package:weather_app/features/home/presentation/screen/home_screen.dart';
+import 'package:weather_app/features/other/presentation/screen/reference_screen.dart';
 import 'package:weather_app/features/quick_search/presentation/screen/quick_search_screen.dart';
 import 'package:weather_app/features/other/presentation/screen/change_password_screen.dart';
 import 'package:weather_app/features/other/presentation/screen/contact_and_support.dart';
@@ -19,6 +20,7 @@ import 'package:weather_app/features/profile/presentation/screen/edit_profile_sc
 import 'package:weather_app/features/profile/presentation/screen/profile_screen.dart';
 import 'package:weather_app/features/result/presentation/screen/result_screen.dart';
 import 'package:weather_app/features/result_summary/presentation/screen/result_summary.dart';
+import 'package:weather_app/features/save/presentation/screen/save_details_screen.dart';
 import 'package:weather_app/features/save/presentation/screen/save_screen.dart';
 import 'package:weather_app/utils/extension/base_extension.dart';
 
@@ -253,7 +255,28 @@ class AppRouter {
           );
         },
       ),
-
+      GoRoute(
+        name: RoutePath.referenceScreen,
+        path: RoutePath.referenceScreen.addBasePath,
+        pageBuilder: (context, state) {
+          return _buildPageWithAnimation(
+            child: const ReferenceScreen(),
+            state: state,
+          );
+        },
+      ),
+      GoRoute(
+        name: RoutePath.saveDetailsScreen,
+        path: RoutePath.saveDetailsScreen.addBasePath,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          final id = extra as String? ?? "";  
+          return _buildPageWithAnimation(
+            child: SaveDetailsScreen(id: id),
+            state: state,
+          );
+        },
+      ),
       /*GoRoute(
         name: RoutePath.categoryEventsScreen,
         path: RoutePath.categoryEventsScreen.addBasePath,
