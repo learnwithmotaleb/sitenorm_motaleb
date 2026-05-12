@@ -128,4 +128,41 @@ class ProfileController extends GetxController {
       AppConfig.logger.e(e.toString());
     }
   }
+
+  // delete account
+
+  final deleteAccountLoading = false.obs;
+  bool loadingDeleteAccountMethod(bool status) =>
+      deleteAccountLoading.value = status;
+  Future<void> deleteAccount() async {
+    loadingDeleteAccountMethod(true);
+    try {
+      final response = await apiClient.delete(
+        url: ApiUrls.deleteAccount(),
+        token: await localService.getToken(),
+      );
+      AppConfig.logger.i(response.data);
+      if (response.statusCode == 200) {
+        await localService.logOut();
+        loadingDeleteAccountMethod(false);
+        AppToast.success(
+          message:
+              response.data?["message"]?.toString() ??
+              "Account deleted successfully",
+        );
+        AppRouter.route.goNamed(RoutePath.loginScreen);
+      } else {
+        loadingDeleteAccountMethod(false);
+        AppToast.error(
+          message:
+              response.data?["message"]?.toString() ??
+              "Failed to delete account",
+        );
+      }
+    } catch (e) {
+      loadingDeleteAccountMethod(false);
+      AppConfig.logger.e(e.toString());
+      AppToast.error(message: "Something went wrong");
+    }
+  }
 }

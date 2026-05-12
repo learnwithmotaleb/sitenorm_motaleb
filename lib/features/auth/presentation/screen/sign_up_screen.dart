@@ -22,17 +22,13 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final authController = Get.find<AuthController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController(
-    text: kDebugMode ? 'John Doe' : '',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: kDebugMode ? 'john.doe@example.com' : '',
-  );
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController(
-    text: kDebugMode ? 'Password00' : '',
+   
   );
   final TextEditingController _confirmPasswordController =
-      TextEditingController(text: kDebugMode ? 'Password00' : '');
+      TextEditingController();
 
   @override
   void dispose() {

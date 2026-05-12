@@ -1,4 +1,4 @@
-package com.agroclima.weather_app.weather_app
+package com.agroclima.sitenorm
 
 import io.flutter.embedding.android.FlutterActivity
 

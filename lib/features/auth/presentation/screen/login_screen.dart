@@ -25,12 +25,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController(
-    text: kDebugMode ? 'jooo@yopmail.com' : '',
-  );
-  final TextEditingController _passwordController = TextEditingController(
-    text: kDebugMode ? 'Jubo1234' : '',
-  );
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final _authController = Get.find<AuthController>();
 
   final LocalService localService = sl();

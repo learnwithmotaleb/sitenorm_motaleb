@@ -17,6 +17,7 @@ class ApiUrls {
   static String getProfile() => '$base/users/profile';
   static String editProfile() => '$base/users/profile';
   static String updateAvatar() => '$base/users/avatar';
+  static String deleteAccount() => '$base/users/delete-account';
 
   static String privacyPolicy() => '$base/settings/privacy';
   static String termsAndConditions() => '$base/settings/terms';
