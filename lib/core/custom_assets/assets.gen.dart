@@ -51,6 +51,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/Vector.svg
   SvgGenImage get vector => const SvgGenImage('assets/icons/Vector.svg');
 
+  /// File path: assets/icons/applogositenorm.svg
+  SvgGenImage get applogositenorm =>
+      const SvgGenImage('assets/icons/applogositenorm.svg');
+
   /// File path: assets/icons/box.svg
   SvgGenImage get box => const SvgGenImage('assets/icons/box.svg');
 
@@ -74,6 +78,7 @@ class $AssetsIconsGen {
   List<SvgGenImage> get values => [
     google,
     vector,
+    applogositenorm,
     box,
     facebook,
     otpicon,
@@ -81,6 +86,20 @@ class $AssetsIconsGen {
     succes,
     welcomeimage,
   ];
+}
+
+class $AssetsImagesGen {
+  const $AssetsImagesGen();
+
+  /// File path: assets/images/applogo.png
+  AssetGenImage get applogo => const AssetGenImage('assets/images/applogo.png');
+
+  /// File path: assets/images/sitenormapplogo.png
+  AssetGenImage get sitenormapplogo =>
+      const AssetGenImage('assets/images/sitenormapplogo.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [applogo, sitenormapplogo];
 }
 
 class $AssetsLanguagesGen {
@@ -116,7 +135,96 @@ class Assets {
 
   static const $AssetsFontsGen fonts = $AssetsFontsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
+  static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsLanguagesGen languages = $AssetsLanguagesGen();
+}
+
+class AssetGenImage {
+  const AssetGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+    this.animation,
+  });
+
+  final String _assetName;
+
+  final Size? size;
+  final Set<String> flavors;
+  final AssetGenImageAnimation? animation;
+
+  Image image({
+    Key? key,
+    AssetBundle? bundle,
+    ImageFrameBuilder? frameBuilder,
+    ImageErrorWidgetBuilder? errorBuilder,
+    String? semanticLabel,
+    bool excludeFromSemantics = false,
+    double? scale,
+    double? width,
+    double? height,
+    Color? color,
+    Animation<double>? opacity,
+    BlendMode? colorBlendMode,
+    BoxFit? fit,
+    AlignmentGeometry alignment = Alignment.center,
+    ImageRepeat repeat = ImageRepeat.noRepeat,
+    Rect? centerSlice,
+    bool matchTextDirection = false,
+    bool gaplessPlayback = true,
+    bool isAntiAlias = false,
+    String? package,
+    FilterQuality filterQuality = FilterQuality.medium,
+    int? cacheWidth,
+    int? cacheHeight,
+  }) {
+    return Image.asset(
+      _assetName,
+      key: key,
+      bundle: bundle,
+      frameBuilder: frameBuilder,
+      errorBuilder: errorBuilder,
+      semanticLabel: semanticLabel,
+      excludeFromSemantics: excludeFromSemantics,
+      scale: scale,
+      width: width,
+      height: height,
+      color: color,
+      opacity: opacity,
+      colorBlendMode: colorBlendMode,
+      fit: fit,
+      alignment: alignment,
+      repeat: repeat,
+      centerSlice: centerSlice,
+      matchTextDirection: matchTextDirection,
+      gaplessPlayback: gaplessPlayback,
+      isAntiAlias: isAntiAlias,
+      package: package,
+      filterQuality: filterQuality,
+      cacheWidth: cacheWidth,
+      cacheHeight: cacheHeight,
+    );
+  }
+
+  ImageProvider provider({AssetBundle? bundle, String? package}) {
+    return AssetImage(_assetName, bundle: bundle, package: package);
+  }
+
+  String get path => _assetName;
+
+  String get keyName => _assetName;
+}
+
+class AssetGenImageAnimation {
+  const AssetGenImageAnimation({
+    required this.isAnimation,
+    required this.duration,
+    required this.frames,
+  });
+
+  final bool isAnimation;
+  final Duration duration;
+  final int frames;
 }
 
 class SvgGenImage {

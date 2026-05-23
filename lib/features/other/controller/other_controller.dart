@@ -1,11 +1,10 @@
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:weather_app/core/di/injection.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/core/router/routes.dart';
 import 'package:weather_app/core/service/datasource/local/local_service.dart';
 import 'package:weather_app/core/service/datasource/remote/api_client.dart';
-import 'package:weather_app/features/other/model/terms_and_condition_model.dart';
+import 'package:weather_app/features/other/model/terms_and_condition_model.dart' as tc;
 import 'package:weather_app/features/result/model/result_summary_model.dart';
 import 'package:weather_app/helper/toast/toast_helper.dart';
 import 'package:weather_app/utils/api_urls/api_urls.dart';
@@ -17,7 +16,7 @@ class OtherController extends GetxController {
   final LocalService localService = sl<LocalService>();
 
   /// ============================= GET Terms Condition =====================================
-  final Rx<TermsConditionModel> termsConditionsData = TermsConditionModel().obs;
+  final Rx<tc.TermsConditionModel> termsConditionsData = tc.TermsConditionModel().obs;
   final Rx<ApiStatus> termsLoading = ApiStatus.completed.obs;
   void termsLoadingMethod(ApiStatus status) => termsLoading.value = status;
 
@@ -26,7 +25,17 @@ class OtherController extends GetxController {
     var response = await apiClient.get(url: ApiUrls.termsAndConditions());
     AppConfig.logger.i(response.data);
     if (response.statusCode == 200) {
-      termsConditionsData.value = TermsConditionModel.fromJson(response.data);
+      if (response.data is Map<String, dynamic>) {
+        termsConditionsData.value = tc.TermsConditionModel.fromJson(response.data);
+      } else if (response.data is String) {
+        termsConditionsData.value = tc.TermsConditionModel(
+          success: true,
+          data: tc.Data(
+            content: response.data,
+            updatedAt: DateTime.now(),
+          ),
+        );
+      }
       termsLoadingMethod(ApiStatus.completed);
     } else {
       AppConfig.logger.e(response.data);
@@ -35,8 +44,8 @@ class OtherController extends GetxController {
   }
 
   /// ============================= GET Privacy Policy =====================================
-  final Rx<TermsConditionModel> privacyConditionsData =
-      TermsConditionModel().obs;
+  final Rx<tc.TermsConditionModel> privacyConditionsData =
+      tc.TermsConditionModel().obs;
   final Rx<ApiStatus> privacyLoading = ApiStatus.completed.obs;
   void privacyLoadingMethod(ApiStatus status) => privacyLoading.value = status;
 
@@ -45,7 +54,17 @@ class OtherController extends GetxController {
     var response = await apiClient.get(url: ApiUrls.privacyPolicy());
     AppConfig.logger.i(response.data);
     if (response.statusCode == 200) {
-      privacyConditionsData.value = TermsConditionModel.fromJson(response.data);
+      if (response.data is Map<String, dynamic>) {
+        privacyConditionsData.value = tc.TermsConditionModel.fromJson(response.data);
+      } else if (response.data is String) {
+        privacyConditionsData.value = tc.TermsConditionModel(
+          success: true,
+          data: tc.Data(
+            content: response.data,
+            updatedAt: DateTime.now(),
+          ),
+        );
+      }
       privacyLoadingMethod(ApiStatus.completed);
     } else {
       AppConfig.logger.e(response.data);

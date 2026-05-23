@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:weather_app/core/di/injection.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/core/router/routes.dart';
@@ -14,7 +13,6 @@ class AuthController extends GetxController {
   RxBool isResendEnabled = true.obs;
   RxInt start = 30.obs;
   Timer? _timer;
-  final ImagePicker _imagePicker = ImagePicker();
   final ApiClient apiClient = sl();
   final LocalService localService = sl();
   void resendCode() {

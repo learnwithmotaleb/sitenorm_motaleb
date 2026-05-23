@@ -24,6 +24,7 @@ class AppColors {
   static const Color error = Color(0xFFDC3545);
   static const Color warning = Color(0xFFFFC107);
   static const Color info = Color(0xFF17A2B8);
+  static const Color hintTextColor = Color(0xFF8E8E93);
 
   // Dark Theme Colors
   static const Color darkBackground = Color(0xFF101010);

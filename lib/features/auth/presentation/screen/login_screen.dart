@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:weather_app/core/custom_assets/assets.gen.dart';
 import 'package:weather_app/core/di/injection.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/core/router/routes.dart';
@@ -66,14 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    AppStrings.agroClima.tr,
-                    textAlign: TextAlign.center,
-                    style: context.headlineLarge.copyWith(
-                      color: AppColors.primaryText,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  Assets.images.applogo.image(width: 150.w, height: 150.h),
                   const Gap(60),
                   Text(AppStrings.signIn.tr, style: context.headlineLarge),
                   const Gap(8),

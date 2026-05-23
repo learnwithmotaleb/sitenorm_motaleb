@@ -7,8 +7,6 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:google_places_flutter/model/prediction.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/features/home/controller/home_controller.dart';
 
@@ -111,47 +109,6 @@ class _ResultScreenState extends State<ResultScreen> {
   //     );
   //   }
   // }
-
-  /// Update map location with coordinates
-  Future<void> _updateMapLocation(
-    double latitude,
-    double longitude,
-    String title,
-  ) async {
-    // Update marker
-    setState(() {
-      _markers = {
-        Marker(
-          markerId: const MarkerId('searched_location'),
-          position: LatLng(latitude, longitude),
-          infoWindow: InfoWindow(
-            title: title,
-            snippet: '$latitude, $longitude',
-          ),
-        ),
-      };
-    });
-
-    final controller = await _controller.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(latitude, longitude), zoom: 12.0),
-      ),
-    );
-  }
-
-  void _showSnackBar(String message, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError
-            ? AppColors.errorColor
-            : AppColors.successColor,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
 
   void _showResultInfo() {
     final resultData = _homeController.resultSummaryModel.value.data;

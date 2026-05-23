@@ -17,8 +17,10 @@ class Data {
   final String? title;
   final List<Section>? sections;
   final DateTime? lastUpdated;
+  final String? content;
+  final DateTime? updatedAt;
 
-  Data({this.title, this.sections, this.lastUpdated});
+  Data({this.title, this.sections, this.lastUpdated, this.content, this.updatedAt});
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     title: json["title"],
@@ -28,6 +30,10 @@ class Data {
     lastUpdated: json["lastUpdated"] == null
         ? null
         : DateTime.parse(json["lastUpdated"]),
+    content: json["content"],
+    updatedAt: json["updatedAt"] == null
+        ? null
+        : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -35,8 +41,11 @@ class Data {
     "sections": sections == null
         ? []
         : List<dynamic>.from(sections!.map((x) => x.toJson())),
-    "lastUpdated":
-        "${lastUpdated!.year.toString().padLeft(4, '0')}-${lastUpdated!.month.toString().padLeft(2, '0')}-${lastUpdated!.day.toString().padLeft(2, '0')}",
+    "lastUpdated": lastUpdated == null
+        ? null
+        : "${lastUpdated!.year.toString().padLeft(4, '0')}-${lastUpdated!.month.toString().padLeft(2, '0')}-${lastUpdated!.day.toString().padLeft(2, '0')}",
+    "content": content,
+    "updatedAt": updatedAt?.toIso8601String(),
   };
 }
 

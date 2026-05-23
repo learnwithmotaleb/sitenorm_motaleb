@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
+import 'package:weather_app/core/custom_assets/assets.gen.dart';
 import 'package:weather_app/features/auth/controller/auth_controller.dart';
 import 'package:weather_app/helper/validator/text_field_validator.dart';
 import 'package:weather_app/share/widgets/button/custom_button.dart';
@@ -24,9 +25,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController(
-   
-  );
+  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
@@ -52,14 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    AppStrings.agroClima.tr,
-                    textAlign: TextAlign.center,
-                    style: context.headlineLarge.copyWith(
-                      color: AppColors.primaryText, // Keep brand color override
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  Assets.images.applogo.image(width: 150.w, height: 150.h),
                   const Gap(60),
                   Text(AppStrings.signUp.tr, style: context.headlineLarge),
                   const Gap(8),

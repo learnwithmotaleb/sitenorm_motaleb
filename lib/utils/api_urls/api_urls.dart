@@ -19,8 +19,8 @@ class ApiUrls {
   static String updateAvatar() => '$base/users/avatar';
   static String deleteAccount() => '$base/users/delete-account';
 
-  static String privacyPolicy() => '$base/settings/privacy';
-  static String termsAndConditions() => '$base/settings/terms';
+  static String privacyPolicy() => '$base/manage/view-privacy-policy';
+  static String termsAndConditions() => '$base/manage/view-terms-conditions';
   static String contact() => '$base/settings/contact';
 
   static String getStates() => '$base/stations/states';
@@ -33,5 +33,5 @@ class ApiUrls {
   static String saveStations() => '$base/evaluations/save';
   static String calculate() => '$base/evaluations/calculate';
   static String getSavedStations() => '$base/evaluations/saved';
-  static String getSaveDetails({required String id})=> '$base/evaluations/$id';
+  static String getSaveDetails({required String id}) => '$base/evaluations/$id';
 }

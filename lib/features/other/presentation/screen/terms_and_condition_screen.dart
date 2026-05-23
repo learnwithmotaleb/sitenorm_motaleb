@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:weather_app/features/other/controller/other_controller.dart';
 import 'package:weather_app/share/widgets/loading/loading_widget.dart';
 import 'package:weather_app/utils/app_strings/app_strings.dart';
@@ -42,53 +43,50 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen> {
             return Center(child: Text("Something went wrong!".tr));
 
           case ApiStatus.completed:
-            final sections =
-                controller.termsConditionsData.value.data?.sections ?? [];
-            if (sections.isEmpty) {
+            final data = controller.termsConditionsData.value.data;
+            String htmlContent = data?.content ?? "";
+            if (htmlContent.isEmpty && data?.sections != null && data!.sections!.isNotEmpty) {
+              final buffer = StringBuffer();
+              for (var section in data.sections!) {
+                if (section.heading != null && section.heading!.isNotEmpty) {
+                  buffer.write('<h3>${section.heading}</h3>');
+                }
+                if (section.content != null && section.content!.isNotEmpty) {
+                  buffer.write('<p>${section.content}</p>');
+                }
+              }
+              htmlContent = buffer.toString();
+            }
+
+            if (htmlContent.isEmpty) {
               return Center(child: Text("No data found!".tr));
             }
+
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(
-                  sections.length,
-                  (index) => _buildSection(
-                    sections[index].heading ?? "Section ${index + 1}",
-                    sections[index].content ?? "",
+                children: [
+                  if (data?.updatedAt != null)
+                    Text(
+                      "Last updated: ${data!.updatedAt!.toLocal().toString().split(' ')[0]}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.hintTextColor,
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  HtmlWidget(
+                    htmlContent,
+                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.hintTextColor,
+                      height: 1.5,
+                    ),
                   ),
-                ),
+                ],
               ),
             );
         }
       }),
-    );
-  }
-
-  Widget _buildSection(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.secondaryText,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            content,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.secondaryText,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

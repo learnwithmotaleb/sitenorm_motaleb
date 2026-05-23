@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:weather_app/core/custom_assets/assets.gen.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/helper/date_converter/date_converter.dart';
 import 'package:weather_app/share/widgets/button/custom_button.dart';
@@ -69,201 +70,197 @@ class _HomeScreenState extends State<HomeScreen> {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.person, color: Colors.white),
-                  onPressed: () {
-                    context.pushNamed(RoutePath.profileScreen);
-                  },
-                ),
-              ),
-              Gap(20.h),
-
-              /// ---------- HEADER ----------
-              Center(
-                child: Text(
-                  AppStrings.agroClima.tr,
-                  style: context.headlineMedium.copyWith(
-                    color: AppColors.successColor, // Green color
-                    fontWeight: FontWeight.bold,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.person, color: Colors.white),
+                    onPressed: () {
+                      context.pushNamed(RoutePath.profileScreen);
+                    },
                   ),
                 ),
-              ),
-              Gap(40.h),
+                Gap(20.h),
 
-              /// ---------- FORM CONTAINER ----------
-              Container(
-                padding: EdgeInsets.all(20.r),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1C1C1E), // Dark surface
-                  borderRadius: BorderRadius.circular(20.r),
+                /// ---------- HEADER ----------
+                Center(
+                  child: Assets.images.applogo.image(
+                    width: 150.w,
+                    height: 150.h,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    /// ---------- STATE DROPDOWN ----------
-                    Obx(() {
-                      final states =
-                          _homeController.stateModel.value.data ?? [];
-                      return ValueListenableBuilder<
-                        state_model.StateModelDatum?
-                      >(
-                        valueListenable: selectedState,
-                        builder: (context, value, child) {
-                          return CustomDropdownField<
-                            state_model.StateModelDatum
-                          >(
-                            hintText: AppStrings.selectState.tr,
-                            items: states,
-                            value: value,
-                            onChanged: (newValue) {
-                              selectedState.value = newValue;
-                              selectedCounty.value = null; // cascade clearing
-                              if (newValue?.code != null) {
-                                _homeController.getCounties(
-                                  stateCode: newValue!.code!,
-                                );
-                              }
-                            },
-                            fillColor: AppColors.darkBackground,
-                            labelBuilder: (item) => item.code ?? '',
-                          );
-                        },
-                      );
-                    }),
-                    Gap(16.h),
+                Gap(40.h),
 
-                    /// ---------- COUNTY DROPDOWN ----------
-                    Obx(() {
-                      final counties =
-                          _homeController.countiesModel.value.data ?? [];
-                      return ValueListenableBuilder<counties_model.Datum?>(
-                        valueListenable: selectedCounty,
-                        builder: (context, value, child) {
-                          return CustomDropdownField<counties_model.Datum>(
-                            hintText: AppStrings.selectCounty.tr,
-                            items: counties,
-                            value: value,
-                            onChanged: (newValue) {
-                              selectedCounty.value = newValue;
-                              if (newValue?.fips != null) {
-                                _fipsController.text = newValue!.fips!;
-                              } else {
-                                _fipsController.clear();
-                              }
-                            },
-                            fillColor: AppColors.darkBackground,
-                            labelBuilder: (item) => item.name ?? '',
-                          );
-                        },
-                      );
-                    }),
-                    Gap(16.h),
-                    CustomTextField(
-                      controller: _dateController,
-                      hintText: "Observation Date",
-                      fillColor: AppColors.darkBackground,
-                      readOnly: true,
-                      onTap: () async {
-                        final formattedDate = await DateConverter.selectDate(
-                          context,
+                /// ---------- FORM CONTAINER ----------
+                Container(
+                  padding: EdgeInsets.all(20.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E), // Dark surface
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Column(
+                    children: [
+                      /// ---------- STATE DROPDOWN ----------
+                      Obx(() {
+                        final states =
+                            _homeController.stateModel.value.data ?? [];
+                        return ValueListenableBuilder<
+                          state_model.StateModelDatum?
+                        >(
+                          valueListenable: selectedState,
+                          builder: (context, value, child) {
+                            return CustomDropdownField<
+                              state_model.StateModelDatum
+                            >(
+                              hintText: AppStrings.selectState.tr,
+                              items: states,
+                              value: value,
+                              onChanged: (newValue) {
+                                selectedState.value = newValue;
+                                selectedCounty.value = null; // cascade clearing
+                                if (newValue?.code != null) {
+                                  _homeController.getCounties(
+                                    stateCode: newValue!.code!,
+                                  );
+                                }
+                              },
+                              fillColor: AppColors.darkBackground,
+                              labelBuilder: (item) => item.code ?? '',
+                            );
+                          },
                         );
-                        if (formattedDate != null) {
-                          _dateController.text = formattedDate;
-                        }
-                      },
-                      suffixIcon: const Icon(
-                        Icons.calendar_today_outlined,
-                        color: AppColors.white,
-                        size: 20,
-                      ),
-                    ),
-                    Gap(16.h),
+                      }),
+                      Gap(16.h),
 
-                    /// ---------- DATE & FIPS ----------
-                    // Row(
-                    //   children: [
-                    //     // Observation Date
-                    //     // Expanded(
-                    //     //   flex: 3,
-                    //     //   child:
-                    //     // ),
-                    //     Gap(12.w),
-                    //     // FIPS ID
-                    //     Expanded(
-                    //       child: Container(
-                    //         height: 54.h,
-                    //         padding: const EdgeInsets.symmetric(horizontal: 12),
-                    //         decoration: BoxDecoration(
-                    //           color: AppColors.darkBackground,
-                    //           borderRadius: BorderRadius.circular(15),
-                    //           border: Border.all(
-                    //             color: AppColors.brandHoverColor,
-                    //             width: 1.2,
-                    //           ),
-                    //         ),
-                    //         child: TextField(
-                    //           controller: _fipsController,
-                    //           style: const TextStyle(color: Colors.white),
-                    //           decoration: InputDecoration(
-                    //             hintText: AppStrings.fipsId.tr,
-                    //             hintStyle: const TextStyle(
-                    //               color: AppColors.brandHoverColor,
-                    //               fontSize: 14,
-                    //             ),
-                    //             border: InputBorder.none,
-                    //             contentPadding: EdgeInsets.only(bottom: 8.h),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    CustomTextField(
-                      controller: _fipsController,
-                      hintText: "${AppStrings.fipsId.tr} (Optional)",
-                      fillColor: AppColors.darkBackground,
-                    ),
-                    Gap(24.h),
-
-                    /// ---------- SEARCH BUTTON ----------
-                    Obx(
-                      () => CustomButton(
-                        text: AppStrings.search.tr,
-                        isLoading:
-                            _homeController.calculateByLocationLoading.value,
-                        onTap: () {
-                          _homeController.calculateByLocation(
-                            body: {
-                              "state": selectedState.value?.code,
-                              "county": selectedCounty.value?.name,
-                              "countyFips": _fipsController.text,
-                              "observationDate": _dateController.text,
-                            },
+                      /// ---------- COUNTY DROPDOWN ----------
+                      Obx(() {
+                        final counties =
+                            _homeController.countiesModel.value.data ?? [];
+                        return ValueListenableBuilder<counties_model.Datum?>(
+                          valueListenable: selectedCounty,
+                          builder: (context, value, child) {
+                            return CustomDropdownField<counties_model.Datum>(
+                              hintText: AppStrings.selectCounty.tr,
+                              items: counties,
+                              value: value,
+                              onChanged: (newValue) {
+                                selectedCounty.value = newValue;
+                                if (newValue?.fips != null) {
+                                  _fipsController.text = newValue!.fips!;
+                                } else {
+                                  _fipsController.clear();
+                                }
+                              },
+                              fillColor: AppColors.darkBackground,
+                              labelBuilder: (item) => item.name ?? '',
+                            );
+                          },
+                        );
+                      }),
+                      Gap(16.h),
+                      CustomTextField(
+                        controller: _dateController,
+                        hintText: "Observation Date",
+                        fillColor: AppColors.darkBackground,
+                        readOnly: true,
+                        onTap: () async {
+                          final formattedDate = await DateConverter.selectDate(
+                            context,
                           );
-                          // context.pushNamed(RoutePath.resultScreen);
+                          if (formattedDate != null) {
+                            _dateController.text = formattedDate;
+                          }
                         },
+                        suffixIcon: const Icon(
+                          Icons.calendar_today_outlined,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                      Gap(16.h),
 
-              Gap(24.h),
+                      /// ---------- DATE & FIPS ----------
+                      // Row(
+                      //   children: [
+                      //     // Observation Date
+                      //     // Expanded(
+                      //     //   flex: 3,
+                      //     //   child:
+                      //     // ),
+                      //     Gap(12.w),
+                      //     // FIPS ID
+                      //     Expanded(
+                      //       child: Container(
+                      //         height: 54.h,
+                      //         padding: const EdgeInsets.symmetric(horizontal: 12),
+                      //         decoration: BoxDecoration(
+                      //           color: AppColors.darkBackground,
+                      //           borderRadius: BorderRadius.circular(15),
+                      //           border: Border.all(
+                      //             color: AppColors.brandHoverColor,
+                      //             width: 1.2,
+                      //           ),
+                      //         ),
+                      //         child: TextField(
+                      //           controller: _fipsController,
+                      //           style: const TextStyle(color: Colors.white),
+                      //           decoration: InputDecoration(
+                      //             hintText: AppStrings.fipsId.tr,
+                      //             hintStyle: const TextStyle(
+                      //               color: AppColors.brandHoverColor,
+                      //               fontSize: 14,
+                      //             ),
+                      //             border: InputBorder.none,
+                      //             contentPadding: EdgeInsets.only(bottom: 8.h),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      CustomTextField(
+                        controller: _fipsController,
+                        hintText: "${AppStrings.fipsId.tr} (Optional)",
+                        fillColor: AppColors.darkBackground,
+                      ),
+                      Gap(24.h),
 
-              /// ---------- CLIMATE REF PERIOD ----------
-              Text(
-                "${AppStrings.climateReferencePeriod.tr}: 1971-2000",
-                style: context.bodySmall.copyWith(
-                  color: AppColors.secondaryText,
+                      /// ---------- SEARCH BUTTON ----------
+                      Obx(
+                        () => CustomButton(
+                          text: AppStrings.search.tr,
+                          isLoading:
+                              _homeController.calculateByLocationLoading.value,
+                          onTap: () {
+                            _homeController.calculateByLocation(
+                              body: {
+                                "state": selectedState.value?.code,
+                                "county": selectedCounty.value?.name,
+                                "countyFips": _fipsController.text,
+                                "observationDate": _dateController.text,
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Gap(20.h),
-            ],
+
+                Gap(24.h),
+
+                /// ---------- CLIMATE REF PERIOD ----------
+                Text(
+                  "${AppStrings.climateReferencePeriod.tr}: 1971-2000",
+                  style: context.bodySmall.copyWith(
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+                Gap(20.h),
+              ],
+            ),
           ),
-        ),
         ),
       ),
 

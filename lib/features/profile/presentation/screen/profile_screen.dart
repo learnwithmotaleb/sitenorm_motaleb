@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:weather_app/core/router/route_path.dart';
-import 'package:weather_app/core/router/routes.dart';
 import 'package:weather_app/features/profile/presentation/screen/widgets/profile_header_card.dart';
 import 'package:weather_app/features/profile/presentation/screen/widgets/profile_menu_item.dart';
 import 'package:weather_app/share/widgets/custom_buttom_sheet/custom_buttom_sheet.dart';
