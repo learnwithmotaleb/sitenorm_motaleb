@@ -62,7 +62,7 @@ class AuthController extends GetxController {
       signUpLoadingMethod(false);
 
       AppToast.success(
-        message: response.data?['message'].toString() ?? "Success",
+        message: response.data?['message']?.toString() ?? "Success",
       );
 
       AppRouter.route.pushNamed(
@@ -71,7 +71,7 @@ class AuthController extends GetxController {
       );
     } else {
       signUpLoadingMethod(false);
-      AppToast.error(message: response.data?['message'].toString() ?? "Error");
+      AppToast.error(message: response.data?['message']?.toString() ?? "Error");
     }
     // try {
 
@@ -105,14 +105,14 @@ class AuthController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         activeOtpLoadingMethod(false);
         AppToast.success(
-          message: response.data?["message"].toString() ?? "Success",
+          message: response.data?["message"]?.toString() ?? "Success",
         );
 
         AppRouter.route.goNamed(RoutePath.homeScreen);
       } else {
         activeOtpLoadingMethod(false);
         AppToast.error(
-          message: response.data?["message"].toString() ?? "Error",
+          message: response.data?["message"]?.toString() ?? "Error",
         );
       }
     } catch (err) {
@@ -148,12 +148,12 @@ class AuthController extends GetxController {
         resendOtpLoadingMethod(false);
 
         AppToast.success(
-          message: response.data?["message"].toString() ?? "Success",
+          message: response.data?["message"]?.toString() ?? "Success",
         );
       } else {
         resendOtpLoadingMethod(false);
         AppToast.error(
-          message: response.data?["message"].toString() ?? "Error",
+          message: response.data?["message"]?.toString() ?? "Error",
         );
       }
     } catch (err) {
@@ -182,7 +182,7 @@ class AuthController extends GetxController {
       if (response.statusCode == 200) {
         signInLoadingMethod(false);
         AppToast.success(
-          message: response.data?["message"].toString() ?? "Login Successful",
+          message: response.data?["message"]?.toString() ?? "Login Successful",
         );
 
         final data = response.data['data'];
@@ -202,7 +202,7 @@ class AuthController extends GetxController {
       } else {
         signInLoadingMethod(false);
         AppToast.error(
-          message: response.data?["message"].toString() ?? "Login Failed",
+          message: response.data?["message"]?.toString() ?? "Login Failed",
         );
       }
     } catch (err) {
@@ -236,7 +236,7 @@ class AuthController extends GetxController {
         forgotPasswordLoadingMethod(false);
         AppToast.success(
           message:
-              response.data?["message"].toString() ??
+              response.data?["message"]?.toString() ??
               "Forgot Password Successful",
         );
         AppRouter.route.goNamed(RoutePath.forgetOtpScreen, extra: email);
@@ -244,7 +244,7 @@ class AuthController extends GetxController {
         forgotPasswordLoadingMethod(false);
         AppToast.error(
           message:
-              response.data?["message"].toString() ?? "Forgot Password Failed",
+              response.data?["message"]?.toString() ?? "Forgot Password Failed",
         );
       }
     } catch (err) {
@@ -322,7 +322,7 @@ class AuthController extends GetxController {
 
         AppToast.success(
           message:
-              response.data?["message"].toString() ??
+              response.data?["message"]?.toString() ??
               "Reset Password Successful",
         );
 
@@ -331,7 +331,7 @@ class AuthController extends GetxController {
         resetPasswordLoadingMethod(false);
         AppToast.error(
           message:
-              response.data?["message"].toString() ?? "Reset Password Failed",
+              response.data?["message"]?.toString() ?? "Reset Password Failed",
         );
       }
     } catch (err) {

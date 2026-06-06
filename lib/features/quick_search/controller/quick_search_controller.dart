@@ -90,7 +90,9 @@ class QuickSearchController extends GetxController {
       );
     } else {
       AppConfig.logger.e(response.data);
-      AppToast.error(message: response.data['message']);
+      final msg =
+          response.data['message']?.toString() ?? "Something went wrong";
+      AppToast.error(message: msg);
       reverseGeocodeLoadingMethod(false);
     }
   }

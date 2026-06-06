@@ -78,7 +78,7 @@ class ProfileController extends GetxController {
         AppConfig.logger.i("Avatar update response: ${avatarResponse.data}");
         if (avatarResponse.statusCode != 200) {
           loadingUpdateProfileMethod(false);
-          AppToast.error(message: avatarResponse.data["message"].toString());
+          AppToast.error(message: avatarResponse.data["message"]?.toString());
           return;
         }
       }
@@ -93,12 +93,12 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200) {
         await getProfile();
         loadingUpdateProfileMethod(false);
-        AppToast.success(message: response.data["message"].toString());
+        AppToast.success(message: response.data["message"]?.toString());
         AppRouter.route.pop();
         return;
       } else {
         loadingUpdateProfileMethod(false);
-        AppToast.error(message: response.data["message"].toString());
+        AppToast.error(message: response.data["message"]?.toString());
       }
     } catch (e) {
       loadingUpdateProfileMethod(false);
@@ -118,7 +118,7 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200) {
         await localService.logOut();
         loadingLogoutMethod(false);
-        AppToast.success(message: response.data["message"].toString());
+        AppToast.success(message: response.data["message"]?.toString());
         AppRouter.route.goNamed(RoutePath.loginScreen);
       } else {
         loadingLogoutMethod(false);

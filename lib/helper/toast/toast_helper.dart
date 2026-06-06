@@ -19,9 +19,18 @@ class AppToast {
     final messenger = ScaffoldMessenger.maybeOf(effectiveContext);
     if (messenger == null) return;
 
-    final displayMessage = (message?.trim().isEmpty ?? true)
-        ? "Something Went Wrong".tr
-        : message!;
+    final isNullOrEmpty = message == null ||
+        message.trim().isEmpty ||
+        message.trim().toLowerCase() == "null";
+
+    final defaultMessage = switch (type) {
+      AppToastType.success => "Success".tr,
+      AppToastType.error => "Something Went Wrong".tr,
+      AppToastType.warning => "Warning".tr,
+      AppToastType.info => "Info".tr,
+    };
+
+    final displayMessage = isNullOrEmpty ? defaultMessage : message.trim();
 
     final defaultBgColor =
         backgroundColor ??
@@ -54,13 +63,13 @@ class AppToast {
   static void success({BuildContext? context, String? message}) =>
       _show(context: context, message: message, type: AppToastType.success);
 
-  static void error({BuildContext? context, required String message}) =>
+  static void error({BuildContext? context, String? message}) =>
       _show(context: context, message: message, type: AppToastType.error);
 
-  static void warning({BuildContext? context, required String message}) =>
+  static void warning({BuildContext? context, String? message}) =>
       _show(context: context, message: message, type: AppToastType.warning);
 
-  static void info({BuildContext? context, required String message}) =>
+  static void info({BuildContext? context, String? message}) =>
       _show(context: context, message: message, type: AppToastType.info);
 }
 

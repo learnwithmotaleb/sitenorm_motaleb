@@ -71,14 +71,16 @@ class HomeController extends GetxController {
     if (response.statusCode == 200 || response.statusCode == 201) {
       resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
       calculateByLocationLoadingMethod(false);
-      AppToast.success(message: response.data['message']);
+      final successMsg = response.data['message']?.toString();
+      AppToast.success(message: (successMsg == null || successMsg == "null" || successMsg.isEmpty) ? "Location fetched successfully" : successMsg);
       AppRouter.route.pushNamed(
         RoutePath.resultScreen,
         extra: resultSummaryModel,
       );
     } else {
       AppConfig.logger.e(response.data);
-      AppToast.error(message: response.data['message']);
+      final msg = response.data['message']?.toString() ?? "Something went wrong";
+      AppToast.error(message: msg);
       calculateByLocationLoadingMethod(false);
     }
   }
@@ -94,14 +96,16 @@ class HomeController extends GetxController {
     if (response.statusCode == 200 || response.statusCode == 201) {
       resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
       calculateLoadingMethod(false);
-      AppToast.success(message: response.data['message']);
+      final successMsg = response.data['message']?.toString();
+      AppToast.success(message: (successMsg == null || successMsg == "null" || successMsg.isEmpty) ? "Calculation successful" : successMsg);
       AppRouter.route.pushNamed(
         RoutePath.resultScreen,
         extra: resultSummaryModel,
       );
     } else {
       AppConfig.logger.e(response.data);
-      AppToast.error(message: response.data['message']);
+      final msg = response.data['message']?.toString() ?? "Something went wrong";
+      AppToast.error(message: msg);
       calculateLoadingMethod(false);
     }
   }

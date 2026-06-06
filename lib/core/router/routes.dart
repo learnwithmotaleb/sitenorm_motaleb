@@ -154,10 +154,13 @@ class AppRouter {
         path: RoutePath.resultScreen.addBasePath,
         pageBuilder: (context, state) {
           final extra = state.extra;
-          final map = (extra is Map<String, dynamic>) ? extra : {};
+          double? latitude;
+          double? longitude;
 
-          final latitude = map['latitude'] as double?;
-          final longitude = map['longitude'] as double?;
+          if (extra is Map<String, dynamic>) {
+            latitude = extra['latitude'] as double?;
+            longitude = extra['longitude'] as double?;
+          }
 
           return _buildPageWithAnimation(
             child: ResultScreen(latitude: latitude, longitude: longitude),

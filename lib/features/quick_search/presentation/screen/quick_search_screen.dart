@@ -22,12 +22,21 @@ class QuickSearchScreen extends StatefulWidget {
 
 class _QuickSearchScreenState extends State<QuickSearchScreen> {
   final QuickSearchController _controller = Get.put(QuickSearchController());
-  final HomeController _homeController = Get.find<HomeController>();
+  late final HomeController _homeController;
   final TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _homeController = Get.find<HomeController>();
+  }
+
   @override
   void dispose() {
     _dateController.dispose();
-    _controller.dispose();
+    // Do NOT call _controller.dispose() — GetX manages the lifecycle
+    // of controllers registered via Get.put(). Manually disposing causes
+    // crashes in release mode.
     super.dispose();
   }
 
@@ -46,7 +55,7 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +172,8 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
             Obx(
               () => CustomButton(
                 text: 'Search',
-                isLoading: _homeController.calculateLoading.value,
+                isLoading: _homeController.calculateLoading.value ||
+                    _controller.reverseGeocodeLoading.value,
                 onTap: () {
                   final coordinates = _controller.searchController.text.trim();
 
@@ -180,13 +190,17 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
                       final latitude = double.parse(parts[0].trim());
                       final longitude = double.parse(parts[1].trim());
 
-                      _homeController.calculate(
-                        body: {
-                          "lat": latitude,
-                          "lon": longitude,
-                          "observationDate": _dateController.text.trim(),
-                        },
-                      );
+                      final body = <String, dynamic>{
+                        "lat": latitude,
+                        "lon": longitude,
+                      };
+
+                      final date = _dateController.text.trim();
+                      if (date.isNotEmpty) {
+                        body["observationDate"] = date;
+                      }
+
+                      _homeController.calculate(body: body);
                     } catch (e) {
                       AppToast.error(
                         message:
@@ -203,7 +217,7 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
               ),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 40),
 
             // Climate Reference Period
             Center(
