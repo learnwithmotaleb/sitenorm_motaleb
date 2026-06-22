@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:weather_app/core/di/injection.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/core/router/routes.dart';
@@ -7,7 +8,9 @@ import 'package:weather_app/core/service/datasource/local/local_service.dart';
 import 'package:weather_app/core/service/datasource/remote/api_client.dart';
 import 'package:weather_app/helper/toast/toast_helper.dart';
 import 'package:weather_app/utils/api_urls/api_urls.dart';
-import 'package:weather_app/utils/config/app_config.dart';
+import 'package:weather_app/subscriptions/services/revenue_cat_service.dart';
+
+import '../../../utils/config/app_config.dart';
 
 class AuthController extends GetxController {
   RxBool isResendEnabled = true.obs;
@@ -85,6 +88,22 @@ class AuthController extends GetxController {
   // ===================== Verify OTP Section ===============
   RxBool activeOtpLoading = false.obs;
   bool activeOtpLoadingMethod(bool status) => activeOtpLoading.value = status;
+
+  Future<void> checkLoginStatus() async {
+    final token = await localService.getToken();
+    if (token.isNotEmpty && !JwtDecoder.isExpired(token)) {
+      final userId = await localService.getUserId();
+      await RevenueCatService.instance.init(userId);
+      final subscribed = await RevenueCatService.instance.isSubscribed();
+      if (subscribed) {
+        AppRouter.route.goNamed(RoutePath.homeScreen);
+      } else {
+        AppRouter.route.goNamed(RoutePath.paywallScreen);
+      }
+    } else {
+      AppRouter.route.goNamed(RoutePath.loginScreen);
+    }
+  }
 
   Future<void> activeOtp({required String otp, required String email}) async {
     AppConfig.logger.i("otp $otp");
@@ -198,7 +217,14 @@ class AuthController extends GetxController {
           role: role,
         );
 
-        AppRouter.route.goNamed(RoutePath.homeScreen);
+        signInLoadingMethod(false);
+await RevenueCatService.instance.init(userId);
+final subscribed = await RevenueCatService.instance.isSubscribed();
+if (subscribed) {
+  AppRouter.route.goNamed(RoutePath.homeScreen);
+} else {
+  AppRouter.route.goNamed(RoutePath.paywallScreen);
+}
       } else {
         signInLoadingMethod(false);
         AppToast.error(

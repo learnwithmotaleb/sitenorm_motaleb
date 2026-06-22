@@ -16,6 +16,7 @@ import 'package:weather_app/share/widgets/text_field/custom_text_field.dart';
 import 'package:weather_app/utils/app_strings/app_strings.dart';
 import 'package:weather_app/utils/color/app_colors.dart';
 import 'package:weather_app/utils/extension/base_extension.dart';
+import 'package:weather_app/subscriptions/services/revenue_cat_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,7 +41,14 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> checkLoginStatus() async {
     final token = await localService.getToken();
     if (token.isNotEmpty && !JwtDecoder.isExpired(token)) {
-      AppRouter.route.goNamed(RoutePath.homeScreen);
+      final userId = await localService.getUserId();
+      await RevenueCatService.instance.init(userId);
+      final subscribed = await RevenueCatService.instance.isSubscribed();
+      if (subscribed) {
+        AppRouter.route.goNamed(RoutePath.homeScreen);
+      } else {
+        AppRouter.route.goNamed(RoutePath.paywallScreen);
+      }
     } else {
       AppRouter.route.goNamed(RoutePath.loginScreen);
     }

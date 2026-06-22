@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/features/auth/presentation/screen/active_otp_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/forget_otp_screen.dart';
-import 'package:weather_app/features/auth/presentation/screen/sign_up_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/login_screen.dart';
+import 'package:weather_app/features/auth/presentation/screen/sign_up_screen.dart';
+import 'package:weather_app/subscriptions/paywall/paywall_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/forget_password_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/reset_password_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/welcome_back_screen.dart';
@@ -135,6 +136,16 @@ class AppRouter {
         pageBuilder: (context, state) {
           return _buildPageWithAnimation(
             child: const HomeScreen(),
+            state: state,
+          );
+        },
+      ),
+      GoRoute(
+        name: RoutePath.paywallScreen,
+        path: RoutePath.paywallScreen.addBasePath,
+        pageBuilder: (context, state) {
+          return _buildPageWithAnimation(
+            child: const PaywallScreen(),
             state: state,
           );
         },
@@ -273,7 +284,7 @@ class AppRouter {
         path: RoutePath.saveDetailsScreen.addBasePath,
         pageBuilder: (context, state) {
           final extra = state.extra;
-          final id = extra as String? ?? "";  
+          final id = extra as String? ?? "";
           return _buildPageWithAnimation(
             child: SaveDetailsScreen(id: id),
             state: state,
