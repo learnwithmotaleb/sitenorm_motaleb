@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../utils/color/app_colors.dart';
 import 'paywall_controller.dart';
 import 'plan_card_widget.dart';
 
@@ -10,22 +11,22 @@ class PaywallScreen extends GetView<PaywallController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: controller.backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Obx(
-          () => SingleChildScrollView(
+              () => SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
 
                 /// Top Icon
                 CircleAvatar(
                   radius: 42,
-                  backgroundColor: controller.primaryColor,
+                  backgroundColor: AppColors.primaryColor,
                   child: const Icon(
-                    Icons.attach_money,
-                    color: Colors.white,
+                    Icons.shield_outlined,
+                    color: AppColors.white,
                     size: 42,
                   ),
                 ),
@@ -33,10 +34,10 @@ class PaywallScreen extends GetView<PaywallController> {
                 const SizedBox(height: 20),
 
                 /// Title
-                Text(
+                const Text(
                   "Unlock Pro Access",
                   style: TextStyle(
-                    color: controller.textColor,
+                    color: AppColors.black,
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
@@ -44,25 +45,25 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 8),
 
-                Text(
-                  "Get access to all of our features",
+                const Text(
+                  "Get access to all SiteNorm Pro features",
                   style: TextStyle(
-                    color: controller.subTitleColor,
+                    color: AppColors.hintTextColor,
                     fontSize: 16,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 /// Features
                 ...controller.features.map(
-                  (feature) => Padding(
+                      (feature) => Padding(
                     padding: const EdgeInsets.only(bottom: 18),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.check_circle_outline,
-                          color: controller.primaryColor,
+                          color: AppColors.primaryColor,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -78,20 +79,24 @@ class PaywallScreen extends GetView<PaywallController> {
                   ),
                 ),
 
+                const SizedBox(height: 8),
+
                 /// Yearly Plan
                 PlanCardWidget(
                   title: "Yearly Subscription",
-                  subtitle: "Get full access for just \$9.99",
+                  subtitle: controller.yearlyPrice.isNotEmpty
+                      ? "${controller.yearlyPrice}/year"
+                      : "Loading...",
                   selected: controller.selectedIndex.value == 0,
                   onTap: () => controller.selectPlan(0),
                 ),
 
-                const SizedBox(height: 10),
-
                 /// Monthly Plan
                 PlanCardWidget(
                   title: "Monthly Subscription",
-                  subtitle: "Get full access for just \$1.99",
+                  subtitle: controller.monthlyPrice.isNotEmpty
+                      ? "${controller.monthlyPrice}/month"
+                      : "Loading...",
                   selected: controller.selectedIndex.value == 1,
                   onTap: () => controller.selectPlan(1),
                 ),
@@ -106,14 +111,13 @@ class PaywallScreen extends GetView<PaywallController> {
                     onPressed: controller.loading.value
                         ? null
                         : () async {
-                            final success = await controller.subscribe();
-
-                            if (success) {
-                              Get.offAllNamed('/home');
-                            }
-                          },
+                      final success = await controller.subscribe();
+                      if (success) {
+                        Get.offAllNamed('/home');
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: controller.primaryColor,
+                      backgroundColor: AppColors.primaryColor,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -121,21 +125,21 @@ class PaywallScreen extends GetView<PaywallController> {
                     ),
                     child: controller.loading.value
                         ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.white,
+                      ),
+                    )
                         : const Text(
-                            "Purchase",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      "Purchase",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -146,16 +150,18 @@ class PaywallScreen extends GetView<PaywallController> {
                   onPressed: controller.loading.value
                       ? null
                       : () async {
-                          await controller.restore();
-                        },
-                  child: Text(
+                    await controller.restore();
+                  },
+                  child: const Text(
                     "Restore Purchases",
                     style: TextStyle(
-                      color: controller.primaryColor,
+                      color: AppColors.primaryColor,
                       fontSize: 15,
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:weather_app/core/custom_assets/assets.gen.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/helper/date_converter/date_converter.dart';
@@ -17,6 +18,11 @@ import 'package:weather_app/features/home/model/state_model.dart'
     as state_model;
 import 'package:weather_app/features/home/model/counties_model.dart'
     as counties_model;
+
+import '../../../../core/di/injection.dart';
+import '../../../../core/router/routes.dart';
+import '../../../../core/service/datasource/local/local_service.dart';
+import '../../../../subscriptions/services/revenue_cat_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,11 +42,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _fipsController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
+
   @override
   void initState() {
     super.initState();
+   // _homeController.checkLoginStatus();
     _homeController.getStates();
   }
+
 
   @override
   void dispose() {
@@ -50,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     selectedDate.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {

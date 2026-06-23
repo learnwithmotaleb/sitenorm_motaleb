@@ -127,6 +127,7 @@ class AuthController extends GetxController {
           message: response.data?["message"]?.toString() ?? "Success",
         );
 
+
         AppRouter.route.goNamed(RoutePath.homeScreen);
       } else {
         activeOtpLoadingMethod(false);

@@ -11,6 +11,9 @@ import 'package:weather_app/utils/api_urls/api_urls.dart';
 import 'package:weather_app/utils/config/app_config.dart';
 import 'package:weather_app/utils/enum/app_enum.dart';
 
+import '../../../core/service/datasource/local/local_service.dart';
+import '../../../subscriptions/services/revenue_cat_service.dart';
+
 class HomeController extends GetxController {
   final ApiClient apiClient = sl<ApiClient>();
 
@@ -18,6 +21,7 @@ class HomeController extends GetxController {
   final Rx<StateModel> stateModel = StateModel().obs;
   final Rx<ApiStatus> stateLoading = ApiStatus.completed.obs;
   void stateLoadingMethod(ApiStatus status) => stateLoading.value = status;
+  final LocalService localService = sl();
 
   Future<void> getStates() async {
     stateLoadingMethod(ApiStatus.loading);
@@ -109,4 +113,17 @@ class HomeController extends GetxController {
       calculateLoadingMethod(false);
     }
   }
+
+//   Future<void> checkLoginStatus() async {
+//     final token = await localService.getToken();
+//     final userId = await localService.getUserId();
+//     await RevenueCatService.instance.init(userId);
+//     final subscribed = await RevenueCatService.instance.isSubscribed();
+//     if (subscribed) {
+//       AppRouter.route.goNamed(RoutePath.homeScreen);
+//     } else {
+//       AppRouter.route.goNamed(RoutePath.paywallScreen);
+//     }
+//
+// }
 }

@@ -9,6 +9,7 @@ import 'package:weather_app/utils/extension/base_extension.dart';
 import 'package:weather_app/features/profile/controller/profile_controller.dart';
 import 'package:weather_app/utils/config/app_config.dart';
 import 'package:get/get.dart';
+import 'package:weather_app/subscriptions/paywall/subscription_badge_widget.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
   const ProfileHeaderCard({super.key});
@@ -27,12 +28,12 @@ class ProfileHeaderCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1C1C1E), // Dark surface
+              AppColors.darkSurface, // Dark surface
               Color(0xFF18301E), // Dark Green tint
             ],
           ),
           borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: const Color(0xFF2C2C2E)),
+          border: Border.all(color: AppColors.borderColor),
         ),
         child: Stack(
           children: [
@@ -47,22 +48,36 @@ class ProfileHeaderCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50.r),
                 ),
                 Gap(16.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Gap(8.h),
-                    Text(
-                      user?.name ?? "User Name",
-                      style: context.titleLarge.copyWith(color: Colors.white),
-                    ),
-                    Gap(4.h),
-                    Text(
-                      user?.email ?? "user@mail.com",
-                      style: context.bodyMedium.copyWith(
-                        color: AppColors.secondaryText,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Gap(8.h),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              user?.name ?? "User Name",
+                              style: context.titleLarge.copyWith(
+                                color: AppColors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Gap(8.w),
+                          const SmartSubscriptionBadge(),
+                        ],
                       ),
-                    ),
-                  ],
+                      Gap(4.h),
+                      Text(
+                        user?.email ?? "user@mail.com",
+                        style: context.bodyMedium.copyWith(
+                          color: AppColors.secondaryText,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -74,9 +89,8 @@ class ProfileHeaderCard extends StatelessWidget {
                   AppRouter.route.pushNamed(RoutePath.editProfileScreen);
                 },
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Color(
-                    0xFF151515,
-                  ), // Darker background for button
+                  backgroundColor:
+                      AppColors.brandHoverColor, // Darker background for button
                   side: BorderSide.none,
                   padding: EdgeInsets.symmetric(
                     horizontal: 20.w,

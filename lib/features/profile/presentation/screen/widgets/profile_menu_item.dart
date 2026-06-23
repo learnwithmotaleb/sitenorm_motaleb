@@ -10,6 +10,7 @@ class ProfileMenuItem extends StatelessWidget {
   final bool showDivider;
   final Color? iconColor;
   final Color? textColor;
+  final Widget? trailingWidget;
 
   const ProfileMenuItem({
     super.key,
@@ -19,6 +20,7 @@ class ProfileMenuItem extends StatelessWidget {
     this.showDivider = true,
     this.iconColor,
     this.textColor,
+    this.trailingWidget,
   });
 
   @override
@@ -35,11 +37,11 @@ class ProfileMenuItem extends StatelessWidget {
           title: Text(
             title,
             style: context.titleMedium.copyWith(
-              color: textColor ?? Colors.white,
+              color: textColor ?? AppColors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
-          trailing: Icon(
+          trailing: trailingWidget ?? Icon(
             Icons.arrow_forward_ios_rounded,
             color: AppColors.secondaryText,
             size: 16.sp,
@@ -48,7 +50,7 @@ class ProfileMenuItem extends StatelessWidget {
         ),
         if (showDivider)
           Divider(
-            color: const Color(0xFF2C2C2E),
+            color: AppColors.borderColor,
             height: 1,
             indent: 20.w,
             endIndent: 20.w,

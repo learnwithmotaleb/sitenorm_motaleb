@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/color/app_colors.dart';
+
 class PlanCardWidget extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -16,8 +18,6 @@ class PlanCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF1677FF);
-    const borderColor = Color(0xFFE5E5E5);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -25,10 +25,10 @@ class PlanCardWidget extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? primaryColor : borderColor,
+            color: selected ? AppColors.primaryColor : AppColors.secondaryText,
             width: 1.5,
           ),
         ),
@@ -49,7 +49,7 @@ class PlanCardWidget extends StatelessWidget {
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: AppColors.hintTextColor,
                       fontSize: 14,
                     ),
                   ),
@@ -61,7 +61,7 @@ class PlanCardWidget extends StatelessWidget {
               child: Icon(
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
                 key: ValueKey(selected),
-                color: selected ? primaryColor : Colors.grey,
+                color: selected ? AppColors.primaryColor : AppColors.hintTextColor,
                 size: 24,
               ),
             ),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:weather_app/subscriptions/services/revenue_cat_service.dart';
-
 import '../models/subscription_plan.dart';
+import '../services/revenue_cat_service.dart';
 
 class PaywallController extends GetxController {
   // ==========================
@@ -15,24 +14,14 @@ class PaywallController extends GetxController {
   bool get isYearly => selectedIndex.value == 0;
 
   // ==========================
-  // COLORS
-  // ==========================
-
-  final Color primaryColor = const Color(0xFF1677FF);
-  final Color borderColor = const Color(0xFFE5E5E5);
-  final Color textColor = const Color(0xFF222222);
-  final Color subTitleColor = const Color(0xFF777777);
-  final Color backgroundColor = Colors.white;
-
-  // ==========================
   // FEATURES
   // ==========================
 
   final List<String> features = [
-    'Remove all ads',
-    'Daily new content',
-    'Other cool features',
-    'Follow for more tutorials',
+    'Unlimited site monitoring',
+    'Real-time notifications',
+    'Advanced analytics',
+    'Priority support',
   ];
 
   // ==========================
@@ -57,19 +46,41 @@ class PaywallController extends GetxController {
     selectedIndex.value = index;
   }
 
+  // Price from RevenueCat (never hardcoded)
+  String get yearlyPrice {
+    try {
+      return offering.value!.availablePackages
+          .firstWhere((p) =>
+      p.storeProduct.identifier == kPlans.first.yearlyProductId)
+          .storeProduct
+          .priceString;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  String get monthlyPrice {
+    try {
+      return offering.value!.availablePackages
+          .firstWhere((p) =>
+      p.storeProduct.identifier == kPlans.first.monthlyProductId)
+          .storeProduct
+          .priceString;
+    } catch (_) {
+      return '';
+    }
+  }
+
   Package? get selectedPackage {
     if (offering.value == null) return null;
 
-    final plan = kPlans.first;
-
     final productId = isYearly
-        ? plan.yearlyProductId
-        : plan.monthlyProductId;
+        ? kPlans.first.yearlyProductId
+        : kPlans.first.monthlyProductId;
 
     try {
       return offering.value!.availablePackages.firstWhere(
-            (package) =>
-        package.storeProduct.identifier == productId,
+            (package) => package.storeProduct.identifier == productId,
       );
     } catch (_) {
       return null;
@@ -78,14 +89,10 @@ class PaywallController extends GetxController {
 
   Future<bool> subscribe() async {
     final package = selectedPackage;
-
     if (package == null) return false;
 
     loading.value = true;
-
-    final result =
-    await RevenueCatService.instance.purchase(package);
-
+    final result = await RevenueCatService.instance.purchase(package);
     loading.value = false;
 
     return result;
@@ -93,10 +100,7 @@ class PaywallController extends GetxController {
 
   Future<bool> restore() async {
     loading.value = true;
-
-    final result =
-    await RevenueCatService.instance.restore();
-
+    final result = await RevenueCatService.instance.restore();
     loading.value = false;
 
     return result;
