@@ -4,7 +4,7 @@ class Entitlements {
 }
 
 class RevenueCatConfig {
-  static const String appleApiKey  = 'appl_XXXXXXXX';
+  static const String appleApiKey  = 'appl_MdZNFARIiatDLcGZWcNAZFMKGEb';
   static const String googleApiKey = 'goog_pdIRUQxaerViJNIzvJUCVyuZHTd';
   static const String offeringId   = 'default';
 }
