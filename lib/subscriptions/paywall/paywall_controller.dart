@@ -40,18 +40,37 @@ class PaywallController extends GetxController {
   Future<void> loadOffering() async {
     final result = await RevenueCatService.instance.getOffering();
     offering.value = result;
+
+    // ── DEBUG — remove after prices show correctly ──
+    if (result == null) {
+      debugPrint('❌ RC Offering is NULL — check RC dashboard offerings setup');
+    } else {
+      debugPrint('✅ RC Offering loaded: ${result.identifier}');
+      debugPrint('📦 Total packages: ${result.availablePackages.length}');
+      for (final p in result.availablePackages) {
+        debugPrint(
+          '  → package: ${p.identifier} | '
+              'productId: ${p.storeProduct.identifier} | '
+              'price: ${p.storeProduct.priceString}',
+        );
+      }
+    }
+    // ── END DEBUG ──
   }
 
   void selectPlan(int index) {
     selectedIndex.value = index;
   }
 
-  // Price from RevenueCat (never hardcoded)
+  // ── Price from RevenueCat — NEVER hardcoded ──────────────────────────────
+
   String get yearlyPrice {
     try {
       return offering.value!.availablePackages
-          .firstWhere((p) =>
-      p.storeProduct.identifier == kPlans.first.yearlyProductId)
+          .firstWhere(
+            (p) => p.storeProduct.identifier == // ✅ fixed
+            kPlans.first.yearlyProductId,
+      )
           .storeProduct
           .priceString;
     } catch (_) {
@@ -62,14 +81,18 @@ class PaywallController extends GetxController {
   String get monthlyPrice {
     try {
       return offering.value!.availablePackages
-          .firstWhere((p) =>
-      p.storeProduct.identifier == kPlans.first.monthlyProductId)
+          .firstWhere(
+            (p) => p.storeProduct.identifier == // ✅ fixed
+            kPlans.first.monthlyProductId,
+      )
           .storeProduct
           .priceString;
     } catch (_) {
       return '';
     }
   }
+
+  // ── Selected Package ─────────────────────────────────────────────────────
 
   Package? get selectedPackage {
     if (offering.value == null) return null;
@@ -80,16 +103,22 @@ class PaywallController extends GetxController {
 
     try {
       return offering.value!.availablePackages.firstWhere(
-            (package) => package.storeProduct.identifier == productId,
+            (p) => p.storeProduct.identifier == productId, // ✅ fixed
       );
     } catch (_) {
+      debugPrint('❌ Package not found for productId: $productId');
       return null;
     }
   }
 
+  // ── Subscribe ────────────────────────────────────────────────────────────
+
   Future<bool> subscribe() async {
     final package = selectedPackage;
-    if (package == null) return false;
+    if (package == null) {
+      debugPrint('❌ Subscribe failed — selectedPackage is null');
+      return false;
+    }
 
     loading.value = true;
     final result = await RevenueCatService.instance.purchase(package);
@@ -97,6 +126,8 @@ class PaywallController extends GetxController {
 
     return result;
   }
+
+  // ── Restore ──────────────────────────────────────────────────────────────
 
   Future<bool> restore() async {
     loading.value = true;
