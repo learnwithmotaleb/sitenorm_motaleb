@@ -76,14 +76,20 @@ class HomeController extends GetxController {
       resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
       calculateByLocationLoadingMethod(false);
       final successMsg = response.data['message']?.toString();
-      AppToast.success(message: (successMsg == null || successMsg == "null" || successMsg.isEmpty) ? "Location fetched successfully" : successMsg);
+      AppToast.success(
+        message:
+            (successMsg == null || successMsg == "null" || successMsg.isEmpty)
+            ? "Location fetched successfully"
+            : successMsg,
+      );
       AppRouter.route.pushNamed(
         RoutePath.resultScreen,
         extra: resultSummaryModel,
       );
     } else {
       AppConfig.logger.e(response.data);
-      final msg = response.data['message']?.toString() ?? "Something went wrong";
+      final msg =
+          response.data['message']?.toString() ?? "Something went wrong";
       AppToast.error(message: msg);
       calculateByLocationLoadingMethod(false);
     }
@@ -101,29 +107,44 @@ class HomeController extends GetxController {
       resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
       calculateLoadingMethod(false);
       final successMsg = response.data['message']?.toString();
-      AppToast.success(message: (successMsg == null || successMsg == "null" || successMsg.isEmpty) ? "Calculation successful" : successMsg);
+      AppToast.success(
+        message:
+            (successMsg == null || successMsg == "null" || successMsg.isEmpty)
+            ? "Calculation successful"
+            : successMsg,
+      );
       AppRouter.route.pushNamed(
         RoutePath.resultScreen,
         extra: resultSummaryModel,
       );
     } else {
       AppConfig.logger.e(response.data);
-      final msg = response.data['message']?.toString() ?? "Something went wrong";
+      final msg =
+          response.data['message']?.toString() ?? "Something went wrong";
       AppToast.error(message: msg);
       calculateLoadingMethod(false);
     }
   }
 
-//   Future<void> checkLoginStatus() async {
-//     final token = await localService.getToken();
-//     final userId = await localService.getUserId();
-//     await RevenueCatService.instance.init(userId);
-//     final subscribed = await RevenueCatService.instance.isSubscribed();
-//     if (subscribed) {
-//       AppRouter.route.goNamed(RoutePath.homeScreen);
-//     } else {
-//       AppRouter.route.goNamed(RoutePath.paywallScreen);
-//     }
-//
-// }
+  Future<void> checkSubscriptionStatus() async {
+    final userId = await localService.getUserId();
+
+    // If somehow there's no user logged in, go to login
+    if (userId.isEmpty) {
+      AppRouter.route.goNamed(RoutePath.loginScreen);
+      return;
+    }
+
+    // Check subscription
+    await RevenueCatService.instance.init(userId);
+    final subscribed = await RevenueCatService.instance.isSubscribed();
+
+    if (!subscribed) {
+      // If not pro, kick them to paywall
+      AppRouter.route.goNamed(RoutePath.paywallScreen);
+    } else {
+      // If pro, load the data
+      getStates();
+    }
+  }
 }

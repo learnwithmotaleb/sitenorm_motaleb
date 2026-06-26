@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:weather_app/core/di/injection.dart';
+import 'package:weather_app/core/router/route_path.dart';
+import 'package:weather_app/core/router/routes.dart';
 import 'package:weather_app/core/service/datasource/local/local_service.dart';
 import 'package:weather_app/utils/multipart/multipart_body.dart';
 
@@ -200,13 +203,20 @@ class ApiClient {
       final statusCode = error.response?.statusCode ?? 500;
       final data = error.response?.data ?? {};
 
-      /*if (statusCode == 401) {
+      if (statusCode == 401) {
         try {
           sl<LocalService>().logOut();
           AppRouter.route.goNamed(RoutePath.loginScreen);
         } catch (_) {}
-        return Response(requestOptions: requestOptions, statusCode: 401, data: {'success': false, 'message': 'Session expired. Please login again.'});
-      }*/
+        return Response(
+          requestOptions: requestOptions,
+          statusCode: 401,
+          data: {
+            'success': false,
+            'message': 'Session expired. Please login again.',
+          },
+        );
+      }
 
       if ({
         DioExceptionType.connectionTimeout,

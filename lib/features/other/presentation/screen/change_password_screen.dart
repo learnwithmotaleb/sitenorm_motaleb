@@ -53,7 +53,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 controller: _previousPasswordController,
                 hintText: AppStrings.previousPassword.tr,
                 isPassword: true,
-                validator: TextFieldValidator.password(),
+                validator: TextFieldValidator.required(errorText: "Previous password is required"),
               ),
               Gap(16.h),
               CustomTextField(

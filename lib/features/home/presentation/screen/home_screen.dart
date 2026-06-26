@@ -46,8 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-   // _homeController.checkLoginStatus();
-    _homeController.getStates();
+    // Check if user is pro, if yes load states, if no route to paywall
+    _homeController.checkSubscriptionStatus();
   }
 
 

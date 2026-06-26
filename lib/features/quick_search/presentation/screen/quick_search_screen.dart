@@ -28,7 +28,10 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _homeController = Get.find<HomeController>();
+    // Use putIfAbsent so QuickSearch works even if Home was never visited
+    _homeController = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : Get.put(HomeController());
   }
 
   @override
@@ -172,8 +175,7 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
             Obx(
               () => CustomButton(
                 text: 'Search',
-                isLoading: _homeController.calculateLoading.value ||
-                    _controller.reverseGeocodeLoading.value,
+                isLoading: _controller.reverseGeocodeLoading.value,
                 onTap: () {
                   final coordinates = _controller.searchController.text.trim();
 
@@ -200,7 +202,8 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
                         body["observationDate"] = date;
                       }
 
-                      _homeController.calculate(body: body);
+                      // Use QuickSearchController's own calculate method
+                      _controller.calculate(body: body);
                     } catch (e) {
                       AppToast.error(
                         message:

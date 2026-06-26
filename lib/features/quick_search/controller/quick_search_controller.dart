@@ -72,28 +72,95 @@ class QuickSearchController extends GetxController {
 
   final Rx<ResultSummaryModel> resultSummaryModel = ResultSummaryModel().obs;
   final RxBool reverseGeocodeLoading = false.obs;
-  void reverseGeocodeLoadingMethod(bool loading) =>
-      reverseGeocodeLoading.value = loading;
 
+  /// Two-step flow:
+  /// Step 1: POST /stations/reverse-geocode {lat, lon, observationDate}
+  ///         → {countyFips, countyName, stateCode, ...}
+  /// Step 2: POST /evaluations/calculate-by-location {state, county, countyFips, observationDate}
+  ///         → ResultSummaryModel
   Future<void> calculate({required Map<String, dynamic> body}) async {
-    reverseGeocodeLoadingMethod(true);
-    var response = await apiClient.post(url: ApiUrls.calculate(), body: body);
-    AppConfig.logger.i(body);
-    AppConfig.logger.i(response.data);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
-      reverseGeocodeLoadingMethod(false);
-      AppToast.success(message: response.data['message']);
-      AppRouter.route.pushNamed(
-        RoutePath.resultScreen,
-        extra: resultSummaryModel,
+    reverseGeocodeLoading.value = true;
+
+    try {
+      AppConfig.logger.i('Step 1 — reverse-geocode: $body');
+
+      // Step 1: Resolve lat/lon to county info
+      final geoResponse = await apiClient.post(
+        url: ApiUrls.reverseGeocode(),
+        body: body,
       );
-    } else {
-      AppConfig.logger.e(response.data);
-      final msg =
-          response.data['message']?.toString() ?? "Something went wrong";
-      AppToast.error(message: msg);
-      reverseGeocodeLoadingMethod(false);
+
+      AppConfig.logger.i('reverse-geocode response: ${geoResponse.data}');
+
+      if (geoResponse.statusCode != 200 && geoResponse.statusCode != 201) {
+        final msg =
+            geoResponse.data['message']?.toString() ??
+            'Failed to resolve location';
+        AppToast.error(message: msg);
+        reverseGeocodeLoading.value = false;
+        return;
+      }
+
+      final geoData = geoResponse.data['data'] as Map<String, dynamic>? ?? {};
+      final countyFips = geoData['countyFips']?.toString() ?? '';
+      final countyName = geoData['countyName']?.toString() ?? '';
+      final stateCode = geoData['stateCode']?.toString() ?? '';
+
+      if (countyFips.isEmpty || stateCode.isEmpty) {
+        AppToast.error(message: 'Could not determine county from coordinates.');
+        reverseGeocodeLoading.value = false;
+        return;
+      }
+
+      // Step 2: Calculate using derived county info
+      final calculateBody = <String, dynamic>{
+        'state': stateCode,
+        'county': countyName,
+        'countyFips': countyFips,
+      };
+
+      if (body['observationDate'] != null) {
+        calculateBody['observationDate'] = body['observationDate'];
+      }
+
+      AppConfig.logger.i('Step 2 — calculate-by-location: $calculateBody');
+
+      final calcResponse = await apiClient.post(
+        url: ApiUrls.calculateByLocation(),
+        body: calculateBody,
+      );
+
+      AppConfig.logger.i(
+        'calculate-by-location response: ${calcResponse.data}',
+      );
+
+      if (calcResponse.statusCode == 200 || calcResponse.statusCode == 201) {
+        resultSummaryModel.value = ResultSummaryModel.fromJson(
+          calcResponse.data,
+        );
+        reverseGeocodeLoading.value = false;
+        final successMsg = calcResponse.data['message']?.toString();
+        AppToast.success(
+          message:
+              (successMsg == null || successMsg == 'null' || successMsg.isEmpty)
+              ? 'Location calculated successfully'
+              : successMsg,
+        );
+        AppRouter.route.pushNamed(
+          RoutePath.resultScreen,
+          extra: resultSummaryModel,
+        );
+      } else {
+        AppConfig.logger.e(calcResponse.data);
+        final msg =
+            calcResponse.data['message']?.toString() ?? 'Something went wrong';
+        AppToast.error(message: msg);
+        reverseGeocodeLoading.value = false;
+      }
+    } catch (e) {
+      AppConfig.logger.e(e.toString());
+      AppToast.error(message: 'An error occurred: ${e.toString()}');
+      reverseGeocodeLoading.value = false;
     }
   }
 }

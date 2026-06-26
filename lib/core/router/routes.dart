@@ -25,26 +25,28 @@ import 'package:weather_app/features/save/presentation/screen/save_details_scree
 import 'package:weather_app/features/save/presentation/screen/save_screen.dart';
 import 'package:weather_app/utils/extension/base_extension.dart';
 
+import '../../features/splash/screen/splash_screen.dart';
+
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
   static final GoRouter initRoute = GoRouter(
-    initialLocation: RoutePath.loginScreen.addBasePath,
+    initialLocation: RoutePath.splashScreen.addBasePath,
     debugLogDiagnostics: true,
     navigatorKey: navigatorKey,
     routes: [
       ///======================= Initial Route =======================
-      // GoRoute(
-      //   name: RoutePath.splashScreen,
-      //   path: RoutePath.splashScreen.addBasePath,
-      //   pageBuilder: (context, state) {
-      //     return _buildPageWithAnimation(
-      //       child: const SplashScreen(),
-      //       state: state,
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        name: RoutePath.splashScreen,
+        path: RoutePath.splashScreen.addBasePath,
+        pageBuilder: (context, state) {
+          return _buildPageWithAnimation(
+            child: const SplashScreen(),
+            state: state,
+          );
+        },
+      ),
       GoRoute(
         name: RoutePath.signUpScreen,
         path: RoutePath.signUpScreen.addBasePath,

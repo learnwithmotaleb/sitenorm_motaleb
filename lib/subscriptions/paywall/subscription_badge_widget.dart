@@ -7,10 +7,7 @@ import '../../utils/color/app_colors.dart';
 class SubscriptionBadgeWidget extends StatelessWidget {
   final CustomerInfo customerInfo;
 
-  const SubscriptionBadgeWidget({
-    super.key,
-    required this.customerInfo,
-  });
+  const SubscriptionBadgeWidget({super.key, required this.customerInfo});
 
   bool get isPro =>
       customerInfo.entitlements.active.containsKey(Entitlements.pro);
@@ -44,19 +41,30 @@ class SubscriptionBadgeWidget extends StatelessWidget {
   }
 }
 
-class SmartSubscriptionBadge extends StatelessWidget {
+class SmartSubscriptionBadge extends StatefulWidget {
   const SmartSubscriptionBadge({super.key});
 
   @override
+  State<SmartSubscriptionBadge> createState() => _SmartSubscriptionBadgeState();
+}
+
+class _SmartSubscriptionBadgeState extends State<SmartSubscriptionBadge> {
+  CustomerInfo? _customerInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch current info immediately
+    Purchases.getCustomerInfo()
+        .then((info) {
+          if (mounted) setState(() => _customerInfo = info);
+        })
+        .catchError((_) {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<CustomerInfo>(
-      future: Purchases.getCustomerInfo(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        return SubscriptionBadgeWidget(
-          customerInfo: snapshot.data!,
-        );
-      },
-    );
+    if (_customerInfo == null) return const SizedBox.shrink();
+    return SubscriptionBadgeWidget(customerInfo: _customerInfo!);
   }
 }

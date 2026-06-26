@@ -35,23 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    checkLoginStatus();
-  }
-
-  Future<void> checkLoginStatus() async {
-    final token = await localService.getToken();
-    if (token.isNotEmpty && !JwtDecoder.isExpired(token)) {
-      final userId = await localService.getUserId();
-      await RevenueCatService.instance.init(userId);
-      final subscribed = await RevenueCatService.instance.isSubscribed();
-      if (subscribed) {
-        AppRouter.route.goNamed(RoutePath.homeScreen);
-      } else {
-        AppRouter.route.goNamed(RoutePath.paywallScreen);
-      }
-    } else {
-      AppRouter.route.goNamed(RoutePath.loginScreen);
-    }
   }
 
   @override

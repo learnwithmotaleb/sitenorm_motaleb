@@ -127,8 +127,31 @@ class AuthController extends GetxController {
           message: response.data?["message"]?.toString() ?? "Success",
         );
 
+        final data = response.data['data'];
+        if (data != null && data['token'] != null) {
+          final token = data['token']?.toString() ?? "";
+          final refreshToken = "";
+          final userId = data['user']?['id']?.toString() ?? "";
+          final role = data['user']?['role']?.toString().toUpperCase() ?? "";
 
-        AppRouter.route.goNamed(RoutePath.homeScreen);
+          await localService.saveUserdata(
+            token: token,
+            refreshToken: refreshToken,
+            id: userId,
+            role: role,
+          );
+
+          await RevenueCatService.instance.init(userId);
+          final subscribed = await RevenueCatService.instance.isSubscribed();
+          if (subscribed) {
+            AppRouter.route.goNamed(RoutePath.homeScreen);
+          } else {
+            AppRouter.route.goNamed(RoutePath.paywallScreen);
+          }
+        } else {
+          // If no user data is returned, fall back to login screen
+          AppRouter.route.goNamed(RoutePath.loginScreen);
+        }
       } else {
         activeOtpLoadingMethod(false);
         AppToast.error(
@@ -208,8 +231,8 @@ class AuthController extends GetxController {
         final data = response.data['data'];
         final token = data['token']?.toString() ?? "";
         final refreshToken = ""; // Removed from new API response
-        final userId = data['user']['id']?.toString() ?? "";
-        final role = data['user']['role']?.toString().toUpperCase() ?? "";
+        final userId = data['user']?['id']?.toString() ?? "";
+        final role = data['user']?['role']?.toString().toUpperCase() ?? "";
 
         await localService.saveUserdata(
           token: token,
@@ -219,13 +242,13 @@ class AuthController extends GetxController {
         );
 
         signInLoadingMethod(false);
-await RevenueCatService.instance.init(userId);
-final subscribed = await RevenueCatService.instance.isSubscribed();
-if (subscribed) {
-  AppRouter.route.goNamed(RoutePath.homeScreen);
-} else {
-  AppRouter.route.goNamed(RoutePath.paywallScreen);
-}
+        await RevenueCatService.instance.init(userId);
+        final subscribed = await RevenueCatService.instance.isSubscribed();
+        if (subscribed) {
+          AppRouter.route.goNamed(RoutePath.homeScreen);
+        } else {
+          AppRouter.route.goNamed(RoutePath.paywallScreen);
+        }
       } else {
         signInLoadingMethod(false);
         AppToast.error(

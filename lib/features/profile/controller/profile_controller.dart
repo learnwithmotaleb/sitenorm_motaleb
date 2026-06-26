@@ -13,6 +13,8 @@ import 'package:weather_app/utils/api_urls/api_urls.dart';
 import 'package:weather_app/utils/config/app_config.dart';
 import 'package:weather_app/utils/multipart/multipart_body.dart';
 
+import '../../../subscriptions/services/revenue_cat_service.dart';
+
 class ProfileController extends GetxController {
   final ImagePicker _imagePicker = ImagePicker();
   final ApiClient apiClient = sl();
@@ -117,6 +119,7 @@ class ProfileController extends GetxController {
       AppConfig.logger.i(response.data);
       if (response.statusCode == 200) {
         await localService.logOut();
+        await RevenueCatService.instance.logout();
         loadingLogoutMethod(false);
         AppToast.success(message: response.data["message"]?.toString());
         AppRouter.route.goNamed(RoutePath.loginScreen);
@@ -144,6 +147,7 @@ class ProfileController extends GetxController {
       AppConfig.logger.i(response.data);
       if (response.statusCode == 200) {
         await localService.logOut();
+        await RevenueCatService.instance.logout();
         loadingDeleteAccountMethod(false);
         AppToast.success(
           message:

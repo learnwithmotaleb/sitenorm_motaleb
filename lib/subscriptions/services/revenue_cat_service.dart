@@ -59,7 +59,15 @@ class RevenueCatService {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      await Purchases.logOut();
+    } catch (e) {
+      // Ignore errors during logout
+    }
+  }
+
   bool _hasProEntitlement(CustomerInfo info) {
     return info.entitlements.active.containsKey(Entitlements.pro);
   }
-}
+}
