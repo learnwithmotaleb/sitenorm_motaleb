@@ -1,5 +1,6 @@
 // lib/core/services/revenue_cat_service.dart
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../constants/entitlements.dart';
@@ -23,9 +24,10 @@ class RevenueCatService {
   Future<Offering?> getOffering() async {
     try {
       final offerings = await Purchases.getOfferings();
-      return offerings.getOffering(RevenueCatConfig.offeringId)
-          ?? offerings.current;
+      return offerings.getOffering(RevenueCatConfig.offeringId) ??
+          offerings.current;
     } catch (e) {
+      debugPrint('❌ RevenueCat getOffering error: $e');
       return null;
     }
   }
@@ -70,4 +72,4 @@ class RevenueCatService {
   bool _hasProEntitlement(CustomerInfo info) {
     return info.entitlements.active.containsKey(Entitlements.pro);
   }
-}
+}

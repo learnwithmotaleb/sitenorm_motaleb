@@ -73,7 +73,8 @@ class PaywallController extends GetxController {
       )
           .storeProduct
           .priceString;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('❌ Error getting yearly price: $e');
       return '';
     }
   }
@@ -87,7 +88,8 @@ class PaywallController extends GetxController {
       )
           .storeProduct
           .priceString;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('❌ Error getting monthly price: $e');
       return '';
     }
   }
