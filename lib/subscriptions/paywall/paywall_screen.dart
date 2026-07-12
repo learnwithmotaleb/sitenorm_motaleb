@@ -12,10 +12,17 @@ class PaywallScreen extends GetView<PaywallController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Obx(
-              () => SingleChildScrollView(
+      body: SafeArea(
+        child: Obx(() {
+          // ── Show loading spinner while offering loads ──
+          if (controller.offering.value == null) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               children: [
                 const SizedBox(height: 40),
@@ -67,11 +74,13 @@ class PaywallScreen extends GetView<PaywallController> {
                           size: 24,
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          feature,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            feature,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -108,7 +117,8 @@ class PaywallScreen extends GetView<PaywallController> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: controller.loading.value
+                    onPressed: controller.loading.value ||
+                        controller.selectedPackage == null
                         ? null
                         : () async {
                       final success = await controller.subscribe();
@@ -118,6 +128,8 @@ class PaywallScreen extends GetView<PaywallController> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
+                      disabledBackgroundColor:
+                      AppColors.primaryColor.withOpacity(0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -150,7 +162,10 @@ class PaywallScreen extends GetView<PaywallController> {
                   onPressed: controller.loading.value
                       ? null
                       : () async {
-                    await controller.restore();
+                    final restored = await controller.restore();
+                    if (restored) {
+                      Get.offAllNamed('/home');
+                    }
                   },
                   child: const Text(
                     "Restore Purchases",
@@ -161,11 +176,23 @@ class PaywallScreen extends GetView<PaywallController> {
                   ),
                 ),
 
+                const SizedBox(height: 8),
+
+                /// Legal note
+                const Text(
+                  "Subscriptions auto-renew unless cancelled.\nCancel anytime in App Store settings.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.hintTextColor,
+                    fontSize: 12,
+                  ),
+                ),
+
                 const SizedBox(height: 20),
               ],
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
