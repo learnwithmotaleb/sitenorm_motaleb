@@ -22,7 +22,7 @@ class ProfileHeaderCard extends StatelessWidget {
       final user = _profileController.profile.value.data;
       return Container(
         width: double.infinity,
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(5.w),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -32,7 +32,7 @@ class ProfileHeaderCard extends StatelessWidget {
               Color(0xFF18301E), // Dark Green tint
             ],
           ),
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(10.r),
           border: Border.all(color: AppColors.borderColor),
         ),
         child: Stack(
@@ -43,7 +43,7 @@ class ProfileHeaderCard extends StatelessWidget {
                 // Profile Image Placeholder
                 CustomNetworkImage(
                   imageUrl: user?.avatar ?? AppConfig.defaultProfile,
-                  height: 70.h,
+                  height: 80.h,
                   width: 70.w,
                   borderRadius: BorderRadius.circular(50.r),
                 ),
@@ -64,7 +64,7 @@ class ProfileHeaderCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Gap(8.w),
+                          Gap(15.w),
                           const SmartSubscriptionBadge(),
                         ],
                       ),
@@ -80,32 +80,6 @@ class ProfileHeaderCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: OutlinedButton(
-                onPressed: () {
-                  AppRouter.route.pushNamed(RoutePath.editProfileScreen);
-                },
-                style: OutlinedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.brandHoverColor, // Darker background for button
-                  side: BorderSide.none,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 8.h,
-                  ),
-                  minimumSize: Size(0, 36.h),
-                ),
-                child: Text(
-                  "Edit Profile",
-                  style: context.bodyMedium.copyWith(
-                    color: AppColors.successColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
             ),
           ],
         ),

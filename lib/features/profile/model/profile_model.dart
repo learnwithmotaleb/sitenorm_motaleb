@@ -1,3 +1,5 @@
+import 'package:weather_app/utils/api_urls/api_urls.dart';
+
 class ProfileModel {
   final bool? success;
   final Data? data;
@@ -36,7 +38,7 @@ class Data {
     name: json["name"],
     email: json["email"],
     role: json["role"],
-    avatar: json["avatar"],
+    avatar: ApiUrls.getImageUrl(json["avatar"]),
     createdAt: json["createdAt"] == null
         ? null
         : DateTime.parse(json["createdAt"]),

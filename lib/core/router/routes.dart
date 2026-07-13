@@ -6,6 +6,7 @@ import 'package:weather_app/features/auth/presentation/screen/forget_otp_screen.
 import 'package:weather_app/features/auth/presentation/screen/login_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/sign_up_screen.dart';
 import 'package:weather_app/subscriptions/paywall/paywall_screen.dart';
+import 'package:weather_app/subscriptions/history/history_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/forget_password_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/reset_password_screen.dart';
 import 'package:weather_app/features/auth/presentation/screen/welcome_back_screen.dart';
@@ -148,6 +149,16 @@ class AppRouter {
         pageBuilder: (context, state) {
           return _buildPageWithAnimation(
             child: const PaywallScreen(),
+            state: state,
+          );
+        },
+      ),
+      GoRoute(
+        name: RoutePath.historyScreen,
+        path: RoutePath.historyScreen.addBasePath,
+        pageBuilder: (context, state) {
+          return _buildPageWithAnimation(
+            child: const HistoryScreen(),
             state: state,
           );
         },

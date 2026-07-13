@@ -44,14 +44,18 @@ class ResultSummaryCard extends StatelessWidget {
                   ),
                   Gap(12.w),
                   // WET Text
-                  Text(
-                    resultData?.determination?.toUpperCase() ??
-                        AppStrings.wet.tr,
-                    style: context.headlineSmall.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      resultData?.determination?.toUpperCase() ??
+                          AppStrings.wet.tr,
+                      style: context.headlineSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  Gap(80.w),
                 ],
               ),
               Gap(16.h),

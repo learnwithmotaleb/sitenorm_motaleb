@@ -18,6 +18,9 @@ import 'package:weather_app/features/home/model/state_model.dart'
     as state_model;
 import 'package:weather_app/features/home/model/counties_model.dart'
     as counties_model;
+import 'package:weather_app/features/profile/controller/profile_controller.dart';
+import 'package:weather_app/share/widgets/network_image/custom_network_image.dart';
+import 'package:weather_app/utils/config/app_config.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/routes.dart';
@@ -33,6 +36,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeController _homeController = Get.put(HomeController());
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   final ValueNotifier<state_model.StateModelDatum?> selectedState =
       ValueNotifier<state_model.StateModelDatum?>(null);
@@ -48,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // Check if user is pro, if yes load states, if no route to paywall
     _homeController.checkSubscriptionStatus();
+    _profileController.getProfile();
   }
 
 
@@ -84,12 +89,24 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Align(
                   alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.person, color: Colors.white),
-                    onPressed: () {
-                      context.pushNamed(RoutePath.profileScreen);
-                    },
-                  ),
+                  child: Obx(() {
+                    final user = _profileController.profile.value.data;
+                    return InkWell(
+                      onTap: () {
+                        context.pushNamed(RoutePath.profileScreen);
+                      },
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.r),
+                        child: CustomNetworkImage(
+                          imageUrl: user?.avatar ?? AppConfig.defaultProfile,
+                          height: 36.h,
+                          width: 36.w,
+                          borderRadius: BorderRadius.circular(50.r),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
                 Gap(20.h),
 

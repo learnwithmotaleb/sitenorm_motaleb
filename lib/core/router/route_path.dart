@@ -25,4 +25,5 @@ class RoutePath {
   static const String referenceScreen = 'referenceScreen';
   static const String saveDetailsScreen = 'saveDetailsScreen';
   static const String paywallScreen = 'PaywallScreen';
+  static const String historyScreen = 'historyScreen';
 }

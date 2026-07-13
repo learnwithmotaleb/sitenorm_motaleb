@@ -34,4 +34,17 @@ class ApiUrls {
   static String calculate() => '$base/evaluations/calculate';
   static String getSavedStations() => '$base/evaluations/saved';
   static String getSaveDetails({required String id}) => '$base/evaluations/$id';
+
+  static String getImageUrl(String? path) {
+    if (path == null || path.isEmpty) return AppConfig.defaultProfile;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    final uri = Uri.tryParse(AppConfig.baseURL);
+    if (uri != null && uri.hasScheme) {
+      final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+      return '${uri.origin}/$cleanPath';
+    }
+    return '$base/$path';
+  }
 }

@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/color/app_colors.dart';
 import 'paywall_controller.dart';
@@ -8,17 +10,36 @@ import 'plan_card_widget.dart';
 class PaywallScreen extends GetView<PaywallController> {
   const PaywallScreen({super.key});
 
+  // ─── Policy-compliant legal footer ───────────────────────────────────────
+  // Apple requires: price, period, auto-renewal disclosure, Privacy Policy, Terms
+  // Google requires: price, frequency, auto-renewal, trial period disclosure
+  static String _legalNote() {
+    final store = Platform.isIOS ? 'Apple ID' : 'Google Play';
+    return 'Subscriptions auto-renew at the stated price unless cancelled at least '
+        '24 hours before the end of the current period. You can manage or cancel '
+        'your subscription anytime from your device store settings. Payment will be '
+        'charged to your $store account at confirmation of purchase.';
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    const url = 'https://sitenorm.com/privacy-policy';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _openTerms() async {
+    const url = 'https://sitenorm.com/terms';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Obx(() {
-          // ── Show loading spinner while offering loads ──
+          // Show loading spinner while offering loads
           if (controller.offering.value == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           return SingleChildScrollView(
@@ -27,7 +48,7 @@ class PaywallScreen extends GetView<PaywallController> {
               children: [
                 const SizedBox(height: 40),
 
-                /// Top Icon
+                // ── Top Icon ─────────────────────────────────────────────
                 CircleAvatar(
                   radius: 42,
                   backgroundColor: AppColors.primaryColor,
@@ -40,9 +61,9 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 20),
 
-                /// Title
+                // ── Title ────────────────────────────────────────────────
                 const Text(
-                  "Unlock Pro Access",
+                  'Unlock Pro Access',
                   style: TextStyle(
                     color: AppColors.black,
                     fontSize: 32,
@@ -53,7 +74,7 @@ class PaywallScreen extends GetView<PaywallController> {
                 const SizedBox(height: 8),
 
                 const Text(
-                  "Get access to all SiteNorm Pro features",
+                  'Get access to all SiteNorm Pro features',
                   style: TextStyle(
                     color: AppColors.hintTextColor,
                     fontSize: 16,
@@ -62,9 +83,9 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 24),
 
-                /// Features
+                // ── Features ─────────────────────────────────────────────
                 ...controller.features.map(
-                      (feature) => Padding(
+                  (feature) => Padding(
                     padding: const EdgeInsets.only(bottom: 18),
                     child: Row(
                       children: [
@@ -90,46 +111,45 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 8),
 
-                /// Yearly Plan
+                // ── Plans ─────────────────────────────────────────────────
                 PlanCardWidget(
-                  title: "Yearly Subscription",
+                  title: 'Yearly Subscription',
                   subtitle: controller.yearlyPrice.isNotEmpty
-                      ? "${controller.yearlyPrice}/year"
-                      : "Loading...",
+                      ? '${controller.yearlyPrice}/year'
+                      : 'Loading...',
                   selected: controller.selectedIndex.value == 0,
                   onTap: () => controller.selectPlan(0),
                 ),
 
-                /// Monthly Plan
                 PlanCardWidget(
-                  title: "Monthly Subscription",
+                  title: 'Monthly Subscription',
                   subtitle: controller.monthlyPrice.isNotEmpty
-                      ? "${controller.monthlyPrice}/month"
-                      : "Loading...",
+                      ? '${controller.monthlyPrice}/month'
+                      : 'Loading...',
                   selected: controller.selectedIndex.value == 1,
                   onTap: () => controller.selectPlan(1),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
 
-                /// Purchase Button
+                // ── Purchase Button ───────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: controller.loading.value ||
-                        controller.selectedPackage == null
-                        ? null
-                        : () async {
-                      final success = await controller.subscribe();
-                      if (success) {
-                        Get.offAllNamed('/home');
-                      }
-                    },
+                    onPressed:
+                        controller.loading.value || controller.selectedPackage == null
+                            ? null
+                            : () async {
+                                final success = await controller.subscribe();
+                                if (success) {
+                                  Get.offAllNamed('/home');
+                                }
+                              },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                       disabledBackgroundColor:
-                      AppColors.primaryColor.withOpacity(0.6),
+                          AppColors.primaryColor.withValues(alpha: 0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -137,38 +157,45 @@ class PaywallScreen extends GetView<PaywallController> {
                     ),
                     child: controller.loading.value
                         ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.white,
-                      ),
-                    )
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.white,
+                            ),
+                          )
                         : const Text(
-                      "Purchase",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
-                /// Restore
+                // ── Restore Purchases — Required by Apple ─────────────────
                 TextButton(
                   onPressed: controller.loading.value
                       ? null
                       : () async {
-                    final restored = await controller.restore();
-                    if (restored) {
-                      Get.offAllNamed('/home');
-                    }
-                  },
+                          final restored = await controller.restore();
+                          if (restored) {
+                            Get.offAllNamed('/home');
+                          } else {
+                            Get.snackbar(
+                              'Restore',
+                              'No active subscription found.',
+                              backgroundColor: AppColors.darkSurface,
+                              colorText: AppColors.white,
+                            );
+                          }
+                        },
                   child: const Text(
-                    "Restore Purchases",
+                    'Restore Purchases',
                     style: TextStyle(
                       color: AppColors.primaryColor,
                       fontSize: 15,
@@ -178,17 +205,53 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 8),
 
-                /// Legal note
-                const Text(
-                  "Subscriptions auto-renew unless cancelled.\nCancel anytime in App Store settings.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.hintTextColor,
-                    fontSize: 12,
+                // ── Legal — Auto-renewal disclosure (Apple + Google required) ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    _legalNote(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.hintTextColor,
+                      fontSize: 11,
+                      height: 1.5,
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
+
+                // ── Privacy Policy & Terms links (Apple + Google required) ──
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: _openPrivacyPolicy,
+                      child: const Text(
+                        'Privacy Policy',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: _openTerms,
+                      child: const Text(
+                        'Terms of Use',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
               ],
             ),
           );
