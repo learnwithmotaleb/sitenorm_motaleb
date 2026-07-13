@@ -22,12 +22,12 @@ class PaywallScreen extends GetView<PaywallController> {
   }
 
   Future<void> _openPrivacyPolicy() async {
-    const url = 'https://sitenorm.com/privacy-policy';
+    const url = 'https://api.sitenorm.com/api/v1/manage/view-privacy-policy';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> _openTerms() async {
-    const url = 'https://sitenorm.com/terms';
+    const url = 'https://api.sitenorm.com/api/v1/manage/view-terms-conditions';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 

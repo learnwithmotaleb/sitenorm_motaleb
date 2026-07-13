@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import '../models/subscription_plan.dart';
 import '../services/revenue_cat_service.dart';
 
 class PaywallController extends GetxController {
@@ -65,52 +64,18 @@ class PaywallController extends GetxController {
   // ── Price from RevenueCat — NEVER hardcoded ──────────────────────────────
 
   String get yearlyPrice {
-    try {
-      return offering.value!.availablePackages
-          .firstWhere(
-            (p) => p.storeProduct.identifier == // ✅ fixed
-            kPlans.first.yearlyProductId,
-      )
-          .storeProduct
-          .priceString;
-    } catch (e) {
-      debugPrint('❌ Error getting yearly price: $e');
-      return '';
-    }
+    return offering.value?.annual?.storeProduct.priceString ?? '';
   }
 
   String get monthlyPrice {
-    try {
-      return offering.value!.availablePackages
-          .firstWhere(
-            (p) => p.storeProduct.identifier == // ✅ fixed
-            kPlans.first.monthlyProductId,
-      )
-          .storeProduct
-          .priceString;
-    } catch (e) {
-      debugPrint('❌ Error getting monthly price: $e');
-      return '';
-    }
+    return offering.value?.monthly?.storeProduct.priceString ?? '';
   }
 
   // ── Selected Package ─────────────────────────────────────────────────────
 
   Package? get selectedPackage {
     if (offering.value == null) return null;
-
-    final productId = isYearly
-        ? kPlans.first.yearlyProductId
-        : kPlans.first.monthlyProductId;
-
-    try {
-      return offering.value!.availablePackages.firstWhere(
-            (p) => p.storeProduct.identifier == productId, // ✅ fixed
-      );
-    } catch (_) {
-      debugPrint('❌ Package not found for productId: $productId');
-      return null;
-    }
+    return isYearly ? offering.value!.annual : offering.value!.monthly;
   }
 
   // ── Subscribe ────────────────────────────────────────────────────────────
