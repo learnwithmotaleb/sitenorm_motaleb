@@ -5,6 +5,7 @@ import 'package:weather_app/core/di/injection.dart';
 import 'package:weather_app/core/router/route_path.dart';
 import 'package:weather_app/core/router/routes.dart';
 import 'package:weather_app/core/service/datasource/remote/api_client.dart';
+import 'package:weather_app/features/home/controller/home_controller.dart';
 import 'package:weather_app/features/result/model/result_summary_model.dart';
 import 'package:weather_app/helper/toast/toast_helper.dart';
 import 'package:weather_app/utils/api_urls/api_urls.dart';
@@ -135,9 +136,11 @@ class QuickSearchController extends GetxController {
       );
 
       if (calcResponse.statusCode == 200 || calcResponse.statusCode == 201) {
-        resultSummaryModel.value = ResultSummaryModel.fromJson(
-          calcResponse.data,
-        );
+        final parsed = ResultSummaryModel.fromJson(calcResponse.data);
+        // Store result in HomeController so ResultScreen & ResultSummary widgets
+        // both read from the same single source of truth.
+        Get.find<HomeController>().resultSummaryModel.value = parsed;
+        resultSummaryModel.value = parsed;
         reverseGeocodeLoading.value = false;
         final successMsg = calcResponse.data['message']?.toString();
         AppToast.success(
@@ -146,9 +149,12 @@ class QuickSearchController extends GetxController {
               ? 'Location calculated successfully'
               : successMsg,
         );
+        // Pass lat/lon so ResultScreen can pin the marker correctly
+        final lat = (body['lat'] as num?)?.toDouble();
+        final lon = (body['lon'] as num?)?.toDouble();
         AppRouter.route.pushNamed(
           RoutePath.resultScreen,
-          extra: resultSummaryModel,
+          extra: <String, dynamic>{'latitude': lat, 'longitude': lon},
         );
       } else {
         AppConfig.logger.e(calcResponse.data);

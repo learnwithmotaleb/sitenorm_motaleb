@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:flutter/services.dart';
+
+import '../../core/router/route_path.dart';
+import '../../core/router/routes.dart';
 import '../../utils/color/app_colors.dart';
 import 'paywall_controller.dart';
 import 'plan_card_widget.dart';
@@ -31,6 +35,32 @@ class PaywallScreen extends GetView<PaywallController> {
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
+  void _showExitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Subscription Required'),
+        content: const Text(
+          'SiteNorm requires an active subscription to access all features. '
+          'Subscribe now to unlock full access.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Stay'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              SystemNavigator.pop();
+            },
+            child: const Text('Exit App'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +76,15 @@ class PaywallScreen extends GetView<PaywallController> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, size: 28),
+                    color: AppColors.hintTextColor,
+                    onPressed: () => _showExitDialog(context),
+                  ),
+                ),
+                const SizedBox(height: 4),
 
                 // ── Top Icon ─────────────────────────────────────────────
                 CircleAvatar(
@@ -138,18 +176,19 @@ class PaywallScreen extends GetView<PaywallController> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed:
-                        controller.loading.value || controller.selectedPackage == null
-                            ? null
-                            : () async {
-                                final success = await controller.subscribe();
-                                if (success) {
-                                  Get.offAllNamed('/home');
-                                }
-                              },
+                        controller.loading.value ||
+                            controller.selectedPackage == null
+                        ? null
+                        : () async {
+                            final success = await controller.subscribe();
+                            if (success) {
+                              AppRouter.route.goNamed(RoutePath.homeScreen);
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
-                      disabledBackgroundColor:
-                          AppColors.primaryColor.withValues(alpha: 0.6),
+                      disabledBackgroundColor: AppColors.primaryColor
+                          .withValues(alpha: 0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -184,7 +223,7 @@ class PaywallScreen extends GetView<PaywallController> {
                       : () async {
                           final restored = await controller.restore();
                           if (restored) {
-                            Get.offAllNamed('/home');
+                            AppRouter.route.goNamed(RoutePath.homeScreen);
                           } else {
                             Get.snackbar(
                               'Restore',

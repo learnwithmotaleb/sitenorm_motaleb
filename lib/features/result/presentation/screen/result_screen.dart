@@ -41,6 +41,8 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
 
+    // resultSummaryModel in HomeController is always the source of truth.
+    // widget.latitude/longitude are passed as extras from both Home and QuickSearch.
     final resultData = _homeController.resultSummaryModel.value.data;
     final lat =
         widget.latitude ??
@@ -61,8 +63,8 @@ class _ResultScreenState extends State<ResultScreen> {
         markerId: const MarkerId('selected_location'),
         position: LatLng(lat, lng),
         infoWindow: InfoWindow(
-          title: 'Selected Location',
-          snippet: '$lat, $lng',
+          title: resultData?.county ?? 'Selected Location',
+          snippet: '${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}',
         ),
       ),
     };

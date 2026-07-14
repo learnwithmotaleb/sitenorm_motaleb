@@ -12,88 +12,86 @@ class ResultSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resultData = Get.find<HomeController>().resultSummaryModel.value.data;
+    final homeController = Get.find<HomeController>();
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppColors.darkSurface,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Icon Circle
-                  Container(
-                    width: 48.w,
-                    height: 48.w,
-                    decoration: const BoxDecoration(
-                      color: AppColors.wefColor, // Teal color
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.cloud_outlined,
+    return Obx(() {
+      final resultData = homeController.resultSummaryModel.value.data;
+
+      // Determine color based on simpleLabel
+      Color labelColor = AppColors.normalColor;
+      final label = resultData?.simpleLabel?.toUpperCase() ?? '';
+      if (label == 'WET') {
+        labelColor = AppColors.wefColor;
+      } else if (label == 'DRY') {
+        labelColor = AppColors.dryColor;
+      }
+
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: AppColors.darkSurface,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Icon Circle
+                Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: labelColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.cloud_outlined,
+                    color: Colors.white,
+                    size: 28.sp,
+                  ),
+                ),
+                Gap(12.w),
+                // Determination label
+                Expanded(
+                  child: Text(
+                    resultData?.determination?.toUpperCase() ?? '—',
+                    style: context.headlineSmall.copyWith(
                       color: Colors.white,
-                      size: 28.sp,
+                      fontWeight: FontWeight.bold,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Gap(12.w),
-                  // WET Text
-                  Expanded(
-                    child: Text(
-                      resultData?.determination?.toUpperCase() ??
-                          AppStrings.wet.tr,
-                      style: context.headlineSmall.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Gap(80.w),
-                ],
-              ),
-              Gap(16.h),
-              Text(
-                "${AppStrings.weightedScore.tr} (${resultData?.totalScore ?? 0} Out Of ${resultData?.maxScore ?? 0})",
-                style: context.bodyMedium.copyWith(
-                  color: AppColors.secondaryText,
                 ),
-              ),
-              Gap(4.h),
-              Text(
-                resultData?.period ?? "March - April 2025",
-                style: context.bodyMedium.copyWith(
-                  color: AppColors.secondaryText,
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: Color(0xFF14291B), // Dark Green pill background
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Text(
-                AppStrings.evaluated.tr,
-                style: context.labelMedium.copyWith(
-                  color: AppColors.successColor,
-                  fontWeight: FontWeight.w600,
-                ),
+              ],
+            ),
+            Gap(16.h),
+            Text(
+              "${AppStrings.weightedScore.tr} (${resultData?.totalScore ?? 0} Out Of ${resultData?.maxScore ?? 0})",
+              style: context.bodyMedium.copyWith(
+                color: AppColors.secondaryText,
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            Gap(4.h),
+            Text(
+              resultData?.period ?? '—',
+              style: context.bodyMedium.copyWith(
+                color: AppColors.secondaryText,
+              ),
+            ),
+            Gap(8.h),
+            // County & State
+            if (resultData?.county != null || resultData?.state != null)
+              Text(
+                '${resultData?.county ?? ''}, ${resultData?.state ?? ''}',
+                style: context.bodySmall.copyWith(
+                  color: AppColors.secondaryText,
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 }

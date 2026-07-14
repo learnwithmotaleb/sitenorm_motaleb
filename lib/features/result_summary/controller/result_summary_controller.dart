@@ -15,23 +15,46 @@ class ResultSummaryController extends GetxController {
 
   Future<void> saveStations({required Map<String, dynamic> body}) async {
     saveStationsLoading.value = true;
-    var response = await apiClient.post(
-      url: ApiUrls.saveStations(),
-      body: body,
-    );
-    AppConfig.logger.i(body);
-    AppConfig.logger.i(response.data);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      resultSummaryModel.value = ResultSummaryModel.fromJson(response.data);
-      saveStationsLoading.value = false;
-      AppToast.success(message: response.data['message']);
-      AppRouter.route.pushNamed(
-        RoutePath.saveScreen,
-        extra: resultSummaryModel,
+    try {
+      // Strip fields rejected by the save endpoint's enum validation.
+      // The backend does not accept stationMethod="decoupled" (or unknown enum
+      // values), so we remove it — the API will re-derive it on its own.
+      final sanitizedBody = Map<String, dynamic>.from(body)
+        ..remove('stationMethod')
+        ..remove(
+          'stationLog',
+        ); // stationLog is also read-only, not needed for save
+
+      var response = await apiClient.post(
+        url: ApiUrls.saveStations(),
+        body: sanitizedBody,
       );
-    } else {
-      AppConfig.logger.e(response.data);
-      AppToast.error(message: response.data['message']);
+
+      AppConfig.logger.i(body);
+      AppConfig.logger.i(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        saveStationsLoading.value = false;
+
+        // Extract message safely
+        final successMsg = response.data['message']?.toString();
+        AppToast.success(
+          message:
+              (successMsg == null || successMsg == "null" || successMsg.isEmpty)
+              ? "Evaluation saved successfully"
+              : successMsg,
+        );
+
+        AppRouter.route.pushNamed(RoutePath.saveScreen);
+      } else {
+        AppConfig.logger.e(response.data);
+        final msg =
+            response.data['message']?.toString() ?? "Failed to save evaluation";
+        AppToast.error(message: msg);
+        saveStationsLoading.value = false;
+      }
+    } catch (e) {
+      AppConfig.logger.e(e);
+      AppToast.error(message: "An error occurred while saving.");
       saveStationsLoading.value = false;
     }
   }

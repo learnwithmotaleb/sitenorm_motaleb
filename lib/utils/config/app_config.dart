@@ -5,7 +5,8 @@ import 'package:weather_app/share/model/language_model.dart';
 class AppConfig {
   //API Base URL
   // static const String baseURL = "http://10.10.20.52:5002/api";
-  static const String baseURL = "https://api.sitenorm.com/api/v1";
+  // static const String baseURL = "https://api.sitenorm.com/api/v1";
+  static const String baseURL = "https://nc5cnwcx-5000.inc1.devtunnels.ms/api/v1";
   static const String fontFamily = "Urbanist";
   static final logger = Logger(
     printer: PrettyPrinter(

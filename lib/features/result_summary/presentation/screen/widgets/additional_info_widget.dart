@@ -12,85 +12,110 @@ class AdditionalInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = Get.find<HomeController>().resultSummaryModel.value.data;
-    final info = data?.additionalInfo;
-    final station = data?.station;
+    final homeController = Get.find<HomeController>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppStrings.additionalInformation.tr,
-          style: context.titleMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+    return Obx(() {
+      final data = homeController.resultSummaryModel.value.data;
+      final info = data?.additionalInfo;
+      final station = data?.station;
+      final rainfallStation = data?.rainfallStation;
+      final stationMethod = data?.stationMethod;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.additionalInformation.tr,
+            style: context.titleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        Gap(12.h),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: AppColors.darkSurface,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Column(
-            children: [
-              _buildInfoRow(
-                context,
-                icon: Icons.cell_tower,
-                text: "WETS Station: ${info?.wetsStation ?? 'N/A'}",
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "This is the closest station to site with all data",
-                      style: context.bodySmall.copyWith(
-                        color: AppColors.secondaryText,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                    Text(
-                      "${_formatDistance(station?.distance)} miles from site",
-                      style: context.bodySmall.copyWith(
-                        color: AppColors.secondaryText,
-                        fontSize: 12.sp,
+          Gap(12.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20.w),
+            decoration: BoxDecoration(
+              color: AppColors.darkSurface,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // WETS Station — use additionalInfo.wetsStation from API
+                _buildInfoRow(
+                  context,
+                  icon: Icons.cell_tower,
+                  label: 'WETS Station',
+                  value: info?.wetsStation ?? station?.name ?? 'N/A',
+                ),
+                Gap(16.h),
+
+                // Rainfall Station (if decoupled)
+                if (rainfallStation != null) ...[
+                  _buildInfoRow(
+                    context,
+                    icon: Icons.water_drop_outlined,
+                    label: 'Rainfall Station',
+                    value:
+                        '${rainfallStation.name ?? 'N/A'} (${_formatDistance(rainfallStation.distance)} mi)',
+                  ),
+                  if (stationMethod == 'decoupled') ...[
+                    Gap(4.h),
+                    Padding(
+                      padding: EdgeInsets.only(left: 32.w),
+                      child: Text(
+                        'Historical normals from WETS station; recent rainfall from this station.',
+                        style: context.bodySmall.copyWith(
+                          color: AppColors.secondaryText,
+                          fontSize: 11.sp,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
+                  Gap(16.h),
+                ],
+
+                // Location
+                _buildInfoRow(
+                  context,
+                  icon: Icons.location_on_outlined,
+                  label: AppStrings.location.tr,
+                  value: info?.location ?? 'N/A',
                 ),
-              ),
-              Gap(12.h),
-              _buildInfoRow(
-                context,
-                icon: Icons.location_on_outlined,
-                text: "Location: ${info?.location ?? 'N/A'}",
-              ),
-              Gap(12.h),
-              _buildInfoRow(
-                context,
-                icon: Icons.layers_outlined,
-                text: "Soil Map Unit: ${info?.soilMapUnit ?? 'N/A'}",
-              ),
-              Gap(12.h),
-              _buildInfoRow(
-                context,
-                icon: Icons.eco_outlined,
-                text:
-                    "Growing Season (${info?.growingSeasonThreshold ?? '50% > 28°F'})\n${info?.growingSeason ?? 'N/A'}",
-              ),
-            ],
+                Gap(16.h),
+
+                // Soil Map Unit
+                _buildInfoRow(
+                  context,
+                  icon: Icons.layers_outlined,
+                  label: AppStrings.soilMapUnit.tr,
+                  value: info?.soilMapUnit ?? 'N/A',
+                ),
+                Gap(16.h),
+
+                // Growing Season
+                _buildInfoRow(
+                  context,
+                  icon: Icons.eco_outlined,
+                  label:
+                      '${AppStrings.growingSeason.tr} (${info?.growingSeasonThreshold ?? 'N/A'})',
+                  value: info?.growingSeason ?? 'N/A',
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildInfoRow(
     BuildContext context, {
     required IconData icon,
-    required String text,
-    Widget? subtitle,
+    required String label,
+    required String value,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,16 +127,21 @@ class AdditionalInfoWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                text,
-                style: context.bodyMedium.copyWith(
+                label,
+                style: context.bodySmall.copyWith(
                   color: AppColors.secondaryText,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11.sp,
+                ),
+              ),
+              Gap(2.h),
+              Text(
+                value,
+                style: context.bodyMedium.copyWith(
+                  color: Colors.white,
                   height: 1.4,
                 ),
               ),
-              if (subtitle != null) ...[
-                Gap(4.h), // Add spacing
-                subtitle,
-              ],
             ],
           ),
         ),
@@ -120,12 +150,12 @@ class AdditionalInfoWidget extends StatelessWidget {
   }
 
   String _formatDistance(dynamic distance) {
-    if (distance == null) return '_____';
+    if (distance == null) return '?';
     if (distance is num) return distance.toStringAsFixed(1);
     if (distance is String) {
       final parsed = double.tryParse(distance);
       return parsed != null ? parsed.toStringAsFixed(1) : distance;
     }
-    return '_____';
+    return '?';
   }
 }

@@ -1,247 +1,384 @@
+import 'package:intl/intl.dart';
+
 class SaveDetailsModel {
-    final bool? success;
-    final Data? data;
+  final bool? success;
+  final Data? data;
 
-    SaveDetailsModel({
-        this.success,
-        this.data,
-    });
+  SaveDetailsModel({
+    this.success,
+    this.data,
+  });
 
-    factory SaveDetailsModel.fromJson(Map<String, dynamic> json) => SaveDetailsModel(
+  factory SaveDetailsModel.fromJson(Map<String, dynamic> json) =>
+      SaveDetailsModel(
         success: json["success"],
         data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "success": success,
         "data": data?.toJson(),
-    };
+      };
 }
 
 class Data {
-    final dynamic simpleLabel;
-    final dynamic determination;
-    final int? totalScore;
-    final int? maxScore;
-    final String? period;
-    final Station? station;
-    final Location? location;
-    final String? county;
-    final String? state;
-    final String? countyFips;
-    final List<RainfallRecord>? rainfallRecord;
-    final AdditionalInfo? additionalInfo;
-    final String? climateReferencePeriod;
-    final List<StationLog>? stationLog;
-    final DateTime? observationDate;
-    final DateTime? savedAt;
+  final dynamic simpleLabel;
+  final dynamic determination;
+  final int? totalScore;
+  final int? maxScore;
+  final String? period;
+  final Station? station;
+  final List<Station>? stations;
+  final String? stationMethod;
+  final Station? rainfallStation;
+  final Location? location;
+  final String? county;
+  final String? state;
+  final String? countyFips;
+  final List<RainfallRecord>? rainfallRecord;
+  final List<MonthDetail>? monthDetails;
+  final AdditionalInfo? additionalInfo;
+  final String? climateReferencePeriod;
+  final List<StationLog>? stationLog;
+  final DateTime? observationDate;
+  final DateTime? savedAt;
 
-    Data({
-        this.simpleLabel,
-        this.determination,
-        this.totalScore,
-        this.maxScore,
-        this.period,
-        this.station,
-        this.location,
-        this.county,
-        this.state,
-        this.countyFips,
-        this.rainfallRecord,
-        this.additionalInfo,
-        this.climateReferencePeriod,
-        this.stationLog,
-        this.observationDate,
-        this.savedAt,
-    });
+  Data({
+    this.simpleLabel,
+    this.determination,
+    this.totalScore,
+    this.maxScore,
+    this.period,
+    this.station,
+    this.stations,
+    this.stationMethod,
+    this.rainfallStation,
+    this.location,
+    this.county,
+    this.state,
+    this.countyFips,
+    this.rainfallRecord,
+    this.monthDetails,
+    this.additionalInfo,
+    this.climateReferencePeriod,
+    this.stationLog,
+    this.observationDate,
+    this.savedAt,
+  });
 
-    factory Data.fromJson(Map<String, dynamic> json) => Data(
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
         simpleLabel: json["simpleLabel"],
         determination: json["determination"],
-        totalScore: json["totalScore"],
-        maxScore: json["maxScore"],
+        totalScore: _parseInt(json["totalScore"]),
+        maxScore: _parseInt(json["maxScore"]),
         period: json["period"],
-        station: json["station"] == null ? null : Station.fromJson(json["station"]),
-        location: json["location"] == null ? null : Location.fromJson(json["location"]),
+        station:
+            json["station"] == null ? null : Station.fromJson(json["station"]),
+        stations: json["stations"] == null
+            ? []
+            : List<Station>.from(
+                json["stations"]!.map((x) => Station.fromJson(x))),
+        stationMethod: json["stationMethod"],
+        rainfallStation: json["rainfallStation"] == null
+            ? null
+            : Station.fromJson(json["rainfallStation"]),
+        location: json["location"] == null
+            ? null
+            : Location.fromJson(json["location"]),
         county: json["county"],
         state: json["state"],
         countyFips: json["countyFips"],
-        rainfallRecord: json["rainfallRecord"] == null ? [] : List<RainfallRecord>.from(json["rainfallRecord"]!.map((x) => RainfallRecord.fromJson(x))),
-        additionalInfo: json["additionalInfo"] == null ? null : AdditionalInfo.fromJson(json["additionalInfo"]),
+        rainfallRecord: json["rainfallRecord"] == null
+            ? []
+            : List<RainfallRecord>.from(
+                json["rainfallRecord"]!.map((x) => RainfallRecord.fromJson(x))),
+        monthDetails: json["monthDetails"] == null
+            ? []
+            : List<MonthDetail>.from(
+                json["monthDetails"]!.map((x) => MonthDetail.fromJson(x))),
+        additionalInfo: json["additionalInfo"] == null
+            ? null
+            : AdditionalInfo.fromJson(json["additionalInfo"]),
         climateReferencePeriod: json["climateReferencePeriod"],
-        stationLog: json["stationLog"] == null ? [] : List<StationLog>.from(json["stationLog"]!.map((x) => StationLog.fromJson(x))),
-        observationDate: json["observationDate"] == null ? null : DateTime.parse(json["observationDate"]),
-        savedAt: json["savedAt"] == null ? null : DateTime.parse(json["savedAt"]),
-    );
+        stationLog: json["stationLog"] == null
+            ? []
+            : List<StationLog>.from(
+                json["stationLog"]!.map((x) => StationLog.fromJson(x))),
+        observationDate: _parseDate(json["observationDate"]),
+        savedAt: _parseDate(json["savedAt"]),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "simpleLabel": simpleLabel,
         "determination": determination,
         "totalScore": totalScore,
         "maxScore": maxScore,
         "period": period,
         "station": station?.toJson(),
+        "stations": stations == null
+            ? []
+            : List<dynamic>.from(stations!.map((x) => x.toJson())),
+        "stationMethod": stationMethod,
+        "rainfallStation": rainfallStation?.toJson(),
         "location": location?.toJson(),
         "county": county,
         "state": state,
         "countyFips": countyFips,
-        "rainfallRecord": rainfallRecord == null ? [] : List<dynamic>.from(rainfallRecord!.map((x) => x.toJson())),
+        "rainfallRecord": rainfallRecord == null
+            ? []
+            : List<dynamic>.from(rainfallRecord!.map((x) => x.toJson())),
+        "monthDetails": monthDetails == null
+            ? []
+            : List<dynamic>.from(monthDetails!.map((x) => x.toJson())),
         "additionalInfo": additionalInfo?.toJson(),
         "climateReferencePeriod": climateReferencePeriod,
-        "stationLog": stationLog == null ? [] : List<dynamic>.from(stationLog!.map((x) => x.toJson())),
+        "stationLog": stationLog == null
+            ? []
+            : List<dynamic>.from(stationLog!.map((x) => x.toJson())),
         "observationDate": observationDate?.toIso8601String(),
         "savedAt": savedAt?.toIso8601String(),
-    };
+      };
 }
 
 class AdditionalInfo {
-    final String? wetsStation;
-    final String? location;
-    final String? soilMapUnit;
-    final String? growingSeason;
-    final String? growingSeasonThreshold;
+  final String? wetsStation;
+  final String? location;
+  final String? soilMapUnit;
+  final String? growingSeason;
+  final String? growingSeasonThreshold;
 
-    AdditionalInfo({
-        this.wetsStation,
-        this.location,
-        this.soilMapUnit,
-        this.growingSeason,
-        this.growingSeasonThreshold,
-    });
+  AdditionalInfo({
+    this.wetsStation,
+    this.location,
+    this.soilMapUnit,
+    this.growingSeason,
+    this.growingSeasonThreshold,
+  });
 
-    factory AdditionalInfo.fromJson(Map<String, dynamic> json) => AdditionalInfo(
+  factory AdditionalInfo.fromJson(Map<String, dynamic> json) => AdditionalInfo(
         wetsStation: json["wetsStation"],
         location: json["location"],
         soilMapUnit: json["soilMapUnit"],
         growingSeason: json["growingSeason"],
         growingSeasonThreshold: json["growingSeasonThreshold"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "wetsStation": wetsStation,
         "location": location,
         "soilMapUnit": soilMapUnit,
         "growingSeason": growingSeason,
         "growingSeasonThreshold": growingSeasonThreshold,
-    };
+      };
 }
 
 class Location {
-    final double? lat;
-    final double? lon;
+  final double? lat;
+  final double? lon;
 
-    Location({
-        this.lat,
-        this.lon,
-    });
+  Location({
+    this.lat,
+    this.lon,
+  });
 
-    factory Location.fromJson(Map<String, dynamic> json) => Location(
-        lat: json["lat"]?.toDouble(),
-        lon: json["lon"]?.toDouble(),
-    );
+  factory Location.fromJson(Map<String, dynamic> json) => Location(
+        lat: _parseDouble(json["lat"]),
+        lon: _parseDouble(json["lon"]),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "lat": lat,
         "lon": lon,
-    };
+      };
 }
 
 class RainfallRecord {
-    final String? month;
-    final double? less30;
-    final double? avg;
-    final double? more30;
-    final dynamic rainfall;
-    final dynamic condition;
+  final String? month;
+  final double? less30;
+  final double? avg;
+  final double? more30;
+  final dynamic rainfall;
+  final dynamic condition;
 
-    RainfallRecord({
-        this.month,
-        this.less30,
-        this.avg,
-        this.more30,
-        this.rainfall,
-        this.condition,
-    });
+  RainfallRecord({
+    this.month,
+    this.less30,
+    this.avg,
+    this.more30,
+    this.rainfall,
+    this.condition,
+  });
 
-    factory RainfallRecord.fromJson(Map<String, dynamic> json) => RainfallRecord(
+  factory RainfallRecord.fromJson(Map<String, dynamic> json) => RainfallRecord(
         month: json["month"],
-        less30: json["less30"]?.toDouble(),
-        avg: json["avg"]?.toDouble(),
-        more30: json["more30"]?.toDouble(),
+        less30: _parseDouble(json["less30"]),
+        avg: _parseDouble(json["avg"]),
+        more30: _parseDouble(json["more30"]),
         rainfall: json["rainfall"],
         condition: json["condition"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "month": month,
         "less30": less30,
         "avg": avg,
         "more30": more30,
         "rainfall": rainfall,
         "condition": condition,
-    };
+      };
+}
+
+class MonthDetail {
+  final int? position;
+  final String? month;
+  final int? year;
+  final int? monthNum;
+  final double? less30;
+  final double? avg;
+  final double? more30;
+  final double? rainfall;
+  final String? condition;
+  final int? conditionValue;
+  final int? weight;
+  final int? score;
+
+  MonthDetail({
+    this.position,
+    this.month,
+    this.year,
+    this.monthNum,
+    this.less30,
+    this.avg,
+    this.more30,
+    this.rainfall,
+    this.condition,
+    this.conditionValue,
+    this.weight,
+    this.score,
+  });
+
+  factory MonthDetail.fromJson(Map<String, dynamic> json) => MonthDetail(
+        position: _parseInt(json["position"]),
+        month: json["month"],
+        year: _parseInt(json["year"]),
+        monthNum: _parseInt(json["monthNum"]),
+        less30: _parseDouble(json["less30"]),
+        avg: _parseDouble(json["avg"]),
+        more30: _parseDouble(json["more30"]),
+        rainfall: _parseDouble(json["rainfall"]),
+        condition: json["condition"],
+        conditionValue: _parseInt(json["conditionValue"]),
+        weight: _parseInt(json["weight"]),
+        score: _parseInt(json["score"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "position": position,
+        "month": month,
+        "year": year,
+        "monthNum": monthNum,
+        "less30": less30,
+        "avg": avg,
+        "more30": more30,
+        "rainfall": rainfall,
+        "condition": condition,
+        "conditionValue": conditionValue,
+        "weight": weight,
+        "score": score,
+      };
 }
 
 class Station {
-    final String? name;
-    final String? sid;
-    final double? lat;
-    final double? lon;
-    final double? distance;
+  final String? name;
+  final String? sid;
+  final double? lat;
+  final double? lon;
+  final dynamic distance;
 
-    Station({
-        this.name,
-        this.sid,
-        this.lat,
-        this.lon,
-        this.distance,
-    });
+  Station({
+    this.name,
+    this.sid,
+    this.lat,
+    this.lon,
+    this.distance,
+  });
 
-    factory Station.fromJson(Map<String, dynamic> json) => Station(
+  factory Station.fromJson(Map<String, dynamic> json) => Station(
         name: json["name"],
         sid: json["sid"],
-        lat: json["lat"]?.toDouble(),
-        lon: json["lon"]?.toDouble(),
-        distance: json["distance"]?.toDouble(),
-    );
+        lat: _parseDouble(json["lat"]),
+        lon: _parseDouble(json["lon"]),
+        distance: json["distance"],
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "name": name,
         "sid": sid,
         "lat": lat,
         "lon": lon,
         "distance": distance,
-    };
+      };
 }
 
 class StationLog {
-    final String? stationName;
-    final String? sid;
-    final String? status;
-    final String? reason;
-    final String? id;
+  final String? stationName;
+  final String? sid;
+  final String? status;
+  final String? reason;
+  final String? id;
+  final dynamic distance;
 
-    StationLog({
-        this.stationName,
-        this.sid,
-        this.status,
-        this.reason,
-        this.id,
-    });
+  StationLog({
+    this.stationName,
+    this.sid,
+    this.status,
+    this.reason,
+    this.id,
+    this.distance,
+  });
 
-    factory StationLog.fromJson(Map<String, dynamic> json) => StationLog(
+  factory StationLog.fromJson(Map<String, dynamic> json) => StationLog(
         stationName: json["stationName"],
         sid: json["sid"],
         status: json["status"],
         reason: json["reason"],
         id: json["_id"],
-    );
+        distance: json["distance"],
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "stationName": stationName,
         "sid": sid,
         "status": status,
         "reason": reason,
         "_id": id,
-    };
+        "distance": distance,
+      };
+}
+
+DateTime? _parseDate(dynamic dateString) {
+  if (dateString == null) return null;
+  try {
+    return DateTime.parse(dateString);
+  } catch (_) {
+    try {
+      return DateFormat("MMM dd, yyyy").parse(dateString);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

@@ -12,87 +12,104 @@ class SaveRainfallRecordWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resultData = Get.find<SaveController>().saveDetailsModel.value.data;
-    final records = resultData?.rainfallRecord ?? [];
+    final saveController = Get.find<SaveController>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppStrings.rainfallRecord.tr,
-          style: context.titleMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+    return Obx(() {
+      final resultData = saveController.saveDetailsModel.value.data;
+      final records = resultData?.rainfallRecord ?? [];
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.rainfallRecord.tr,
+            style: context.titleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        Gap(12.h),
-        // Header
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Gap(12.h),
+          // Header
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildHeaderCell(context, AppStrings.month.tr, flex: 2),
+                _buildHeaderCell(context, "< 30%", flex: 1),
+                _buildHeaderCell(context, AppStrings.avg.tr, flex: 1),
+                _buildHeaderCell(context, "> 30%", flex: 1),
+                _buildHeaderCell(
+                  context,
+                  AppStrings.rainfall.tr,
+                  flex: 1,
+                  isEnd: true,
+                ),
+              ],
+            ),
+          ),
+          Gap(8.h),
+          if (records.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: Text(
+                  'No rainfall data available',
+                  style: context.bodyMedium.copyWith(
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...records.map((record) {
+              Color statusColor = AppColors.normalColor;
+              final cond = record.condition?.toLowerCase() ?? '';
+              if (cond == "wet") {
+                statusColor = AppColors.wefColor;
+              } else if (cond == "dry") {
+                statusColor = AppColors.dryColor;
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: _buildRow(
+                  context,
+                  month: record.month ?? '—',
+                  less30: record.less30 != null ? record.less30!.toString() : '—',
+                  avg: record.avg != null ? record.avg!.toString() : '—',
+                  more30: record.more30 != null ? record.more30!.toString() : '—',
+                  rainfall: record.rainfall != null ? record.rainfall!.toString() : '—',
+                  statusColor: statusColor,
+                ),
+              );
+            }),
+          Gap(4.h),
+          // Legend
+          Row(
             children: [
-              _buildHeaderCell(context, AppStrings.month.tr, flex: 2),
-              _buildHeaderCell(context, "30% <", flex: 1),
-              _buildHeaderCell(context, AppStrings.avg.tr, flex: 1),
-              _buildHeaderCell(context, "30% >", flex: 1),
-              _buildHeaderCell(
+              _buildLegendItem(
                 context,
-                AppStrings.rainfall.tr,
-                flex: 1,
-                isEnd: true,
+                color: AppColors.dryColor,
+                text: AppStrings.dry.tr,
+              ),
+              Gap(16.w),
+              _buildLegendItem(
+                context,
+                color: AppColors.normalColor,
+                text: AppStrings.normal.tr,
+              ),
+              Gap(16.w),
+              _buildLegendItem(
+                context,
+                color: AppColors.wefColor,
+                text: AppStrings.wet.tr,
               ),
             ],
           ),
-        ),
-        Gap(8.h),
-        // Rows
-        ...records.map((record) {
-          Color statusColor = AppColors.normalColor;
-          if (record.condition?.toLowerCase() == "wet") {
-            statusColor = AppColors.wefColor;
-          } else if (record.condition?.toLowerCase() == "dry") {
-            statusColor = AppColors.dryColor;
-          }
-
-          return Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: _buildRow(
-              context,
-              month: record.month ?? "",
-              less30: record.less30?.toString() ?? "0.00",
-              avg: record.avg?.toString() ?? "0.00",
-              more30: record.more30?.toString() ?? "0.00",
-              rainfall: record.rainfall?.toString() ?? "0",
-              statusColor: statusColor,
-            ),
-          );
-        }),
-        Gap(4.h),
-        // Legend
-        Row(
-          children: [
-            _buildLegendItem(
-              context,
-              color: AppColors.dryColor,
-              text: AppStrings.dry.tr,
-            ),
-            Gap(16.w),
-            _buildLegendItem(
-              context,
-              color: AppColors.normalColor,
-              text: AppStrings.normal.tr,
-            ),
-            Gap(16.w),
-            _buildLegendItem(
-              context,
-              color: AppColors.wefColor,
-              text: AppStrings.wet.tr,
-            ),
-          ],
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildHeaderCell(

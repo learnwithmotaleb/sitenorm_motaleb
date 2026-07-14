@@ -12,87 +12,110 @@ class RainfallRecordWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resultData = Get.find<HomeController>().resultSummaryModel.value.data;
-    final records = resultData?.rainfallRecord ?? [];
+    final homeController = Get.find<HomeController>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppStrings.rainfallRecord.tr,
-          style: context.titleMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+    return Obx(() {
+      final resultData = homeController.resultSummaryModel.value.data;
+      final records = resultData?.rainfallRecord ?? [];
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.rainfallRecord.tr,
+            style: context.titleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        Gap(12.h),
-        // Header
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Gap(12.h),
+          // Header row
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              children: [
+                _buildHeaderCell(context, AppStrings.month.tr, flex: 2),
+                _buildHeaderCell(context, "< 30%", flex: 1),
+                _buildHeaderCell(context, AppStrings.avg.tr, flex: 1),
+                _buildHeaderCell(context, "> 30%", flex: 1),
+                _buildHeaderCell(
+                  context,
+                  AppStrings.rainfall.tr,
+                  flex: 1,
+                  isEnd: true,
+                ),
+              ],
+            ),
+          ),
+          Gap(8.h),
+          if (records.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: Text(
+                  'No rainfall data available',
+                  style: context.bodyMedium.copyWith(
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...records.map((record) {
+              final cond = record.condition?.toLowerCase() ?? '';
+              Color statusColor = AppColors.normalColor;
+              if (cond == 'wet') {
+                statusColor = AppColors.wefColor;
+              } else if (cond == 'dry') {
+                statusColor = AppColors.dryColor;
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: _buildRow(
+                  context,
+                  month: record.month ?? '—',
+                  less30: record.less30 != null
+                      ? record.less30!.toString()
+                      : '—',
+                  avg: record.avg != null ? record.avg!.toString() : '—',
+                  more30: record.more30 != null
+                      ? record.more30!.toString()
+                      : '—',
+                  rainfall: record.rainfall != null
+                      ? record.rainfall!.toString()
+                      : '—',
+                  condition: record.condition ?? '',
+                  statusColor: statusColor,
+                ),
+              );
+            }),
+          Gap(4.h),
+          // Legend
+          Row(
             children: [
-              _buildHeaderCell(context, AppStrings.month.tr, flex: 2),
-              _buildHeaderCell(context, "30% <", flex: 1),
-              _buildHeaderCell(context, AppStrings.avg.tr, flex: 1),
-              _buildHeaderCell(context, "30% >", flex: 1),
-              _buildHeaderCell(
+              _buildLegendItem(
                 context,
-                AppStrings.rainfall.tr,
-                flex: 1,
-                isEnd: true,
+                color: AppColors.dryColor,
+                text: AppStrings.dry.tr,
+              ),
+              Gap(16.w),
+              _buildLegendItem(
+                context,
+                color: AppColors.normalColor,
+                text: AppStrings.normal.tr,
+              ),
+              Gap(16.w),
+              _buildLegendItem(
+                context,
+                color: AppColors.wefColor,
+                text: AppStrings.wet.tr,
               ),
             ],
           ),
-        ),
-        Gap(8.h),
-        // Rows
-        ...records.map((record) {
-          Color statusColor = AppColors.normalColor;
-          if (record.condition?.toLowerCase() == "wet") {
-            statusColor = AppColors.wefColor;
-          } else if (record.condition?.toLowerCase() == "dry") {
-            statusColor = AppColors.dryColor;
-          }
-
-          return Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: _buildRow(
-              context,
-              month: record.month ?? "",
-              less30: record.less30?.toString() ?? "0.00",
-              avg: record.avg?.toString() ?? "0.00",
-              more30: record.more30?.toString() ?? "0.00",
-              rainfall: record.rainfall?.toString() ?? "0",
-              statusColor: statusColor,
-            ),
-          );
-        }),
-        Gap(4.h),
-        // Legend
-        Row(
-          children: [
-            _buildLegendItem(
-              context,
-              color: AppColors.dryColor,
-              text: AppStrings.dry.tr,
-            ),
-            Gap(16.w),
-            _buildLegendItem(
-              context,
-              color: AppColors.normalColor,
-              text: AppStrings.normal.tr,
-            ),
-            Gap(16.w),
-            _buildLegendItem(
-              context,
-              color: AppColors.wefColor,
-              text: AppStrings.wet.tr,
-            ),
-          ],
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildHeaderCell(
@@ -106,7 +129,7 @@ class RainfallRecordWidget extends StatelessWidget {
       child: Text(
         text,
         textAlign: isEnd ? TextAlign.center : TextAlign.start,
-        style: context.bodyMedium.copyWith(
+        style: context.bodySmall.copyWith(
           color: AppColors.secondaryText,
           fontWeight: FontWeight.w500,
         ),
@@ -121,16 +144,16 @@ class RainfallRecordWidget extends StatelessWidget {
     required String avg,
     required String more30,
     required String rainfall,
+    required String condition,
     required Color statusColor,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface, // Dark card background
+        color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             flex: 2,
@@ -146,41 +169,36 @@ class RainfallRecordWidget extends StatelessWidget {
             flex: 1,
             child: Text(
               less30,
-              style: context.bodyMedium.copyWith(
-                color: AppColors.secondaryText,
-              ),
+              style: context.bodySmall.copyWith(color: AppColors.secondaryText),
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
               avg,
-              style: context.bodyMedium.copyWith(
-                color: AppColors.secondaryText,
-              ),
+              style: context.bodySmall.copyWith(color: AppColors.secondaryText),
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
               more30,
-              style: context.bodyMedium.copyWith(
-                color: AppColors.secondaryText,
-              ),
+              style: context.bodySmall.copyWith(color: AppColors.secondaryText),
             ),
           ),
           Expanded(
             flex: 1,
             child: Center(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: statusColor,
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Text(
                   rainfall,
-                  style: context.bodyMedium.copyWith(
+                  textAlign: TextAlign.center,
+                  style: context.bodySmall.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),

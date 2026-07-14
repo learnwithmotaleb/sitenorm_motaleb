@@ -22,11 +22,15 @@ class Data {
   final int? maxScore;
   final String? period;
   final Station? station;
+  final List<Station>? stations;
+  final String? stationMethod;
+  final Station? rainfallStation;
   final Location? location;
   final String? county;
   final String? state;
   final String? countyFips;
   final List<RainfallRecord>? rainfallRecord;
+  final List<MonthDetail>? monthDetails;
   final AdditionalInfo? additionalInfo;
   final String? climateReferencePeriod;
   final List<StationLog>? stationLog;
@@ -39,11 +43,15 @@ class Data {
     this.maxScore,
     this.period,
     this.station,
+    this.stations,
+    this.stationMethod,
+    this.rainfallStation,
     this.location,
     this.county,
     this.state,
     this.countyFips,
     this.rainfallRecord,
+    this.monthDetails,
     this.additionalInfo,
     this.climateReferencePeriod,
     this.stationLog,
@@ -57,6 +65,13 @@ class Data {
     maxScore: json["maxScore"],
     period: json["period"],
     station: json["station"] == null ? null : Station.fromJson(json["station"]),
+    stations: json["stations"] == null
+        ? []
+        : List<Station>.from(json["stations"]!.map((x) => Station.fromJson(x))),
+    stationMethod: json["stationMethod"],
+    rainfallStation: json["rainfallStation"] == null
+        ? null
+        : Station.fromJson(json["rainfallStation"]),
     location: json["location"] == null
         ? null
         : Location.fromJson(json["location"]),
@@ -67,6 +82,11 @@ class Data {
         ? []
         : List<RainfallRecord>.from(
             json["rainfallRecord"]!.map((x) => RainfallRecord.fromJson(x)),
+          ),
+    monthDetails: json["monthDetails"] == null
+        ? []
+        : List<MonthDetail>.from(
+            json["monthDetails"]!.map((x) => MonthDetail.fromJson(x)),
           ),
     additionalInfo: json["additionalInfo"] == null
         ? null
@@ -86,7 +106,6 @@ class Data {
       return DateTime.parse(dateString);
     } catch (_) {
       try {
-        // Fallback to "MMM dd, yyyy" format e.g. "Mar 18, 2026"
         return DateFormat("MMM dd, yyyy").parse(dateString);
       } catch (_) {
         return null;
@@ -101,6 +120,11 @@ class Data {
     "maxScore": maxScore,
     "period": period,
     "station": station?.toJson(),
+    "stations": stations == null
+        ? []
+        : List<dynamic>.from(stations!.map((x) => x.toJson())),
+    "stationMethod": stationMethod,
+    "rainfallStation": rainfallStation?.toJson(),
     "location": location?.toJson(),
     "county": county,
     "state": state,
@@ -108,13 +132,17 @@ class Data {
     "rainfallRecord": rainfallRecord == null
         ? []
         : List<dynamic>.from(rainfallRecord!.map((x) => x.toJson())),
+    "monthDetails": monthDetails == null
+        ? []
+        : List<dynamic>.from(monthDetails!.map((x) => x.toJson())),
     "additionalInfo": additionalInfo?.toJson(),
     "climateReferencePeriod": climateReferencePeriod,
     "stationLog": stationLog == null
         ? []
         : List<dynamic>.from(stationLog!.map((x) => x.toJson())),
-    "observationDate":
-        "${observationDate!.year.toString().padLeft(4, '0')}-${observationDate!.month.toString().padLeft(2, '0')}-${observationDate!.day.toString().padLeft(2, '0')}",
+    "observationDate": observationDate == null
+        ? null
+        : "${observationDate!.year.toString().padLeft(4, '0')}-${observationDate!.month.toString().padLeft(2, '0')}-${observationDate!.day.toString().padLeft(2, '0')}",
   };
 }
 
@@ -181,10 +209,10 @@ class RainfallRecord {
 
   factory RainfallRecord.fromJson(Map<String, dynamic> json) => RainfallRecord(
     month: json["month"],
-    less30: json["less30"]?.toDouble(),
-    avg: json["avg"]?.toDouble(),
-    more30: json["more30"]?.toDouble(),
-    rainfall: json["rainfall"]?.toDouble(),
+    less30: _parseDouble(json["less30"]),
+    avg: _parseDouble(json["avg"]),
+    more30: _parseDouble(json["more30"]),
+    rainfall: _parseDouble(json["rainfall"]),
     condition: json["condition"],
   );
 
@@ -196,6 +224,80 @@ class RainfallRecord {
     "rainfall": rainfall,
     "condition": condition,
   };
+}
+
+class MonthDetail {
+  final int? position;
+  final String? month;
+  final int? year;
+  final int? monthNum;
+  final double? less30;
+  final double? avg;
+  final double? more30;
+  final double? rainfall;
+  final String? condition;
+  final int? conditionValue;
+  final int? weight;
+  final int? score;
+
+  MonthDetail({
+    this.position,
+    this.month,
+    this.year,
+    this.monthNum,
+    this.less30,
+    this.avg,
+    this.more30,
+    this.rainfall,
+    this.condition,
+    this.conditionValue,
+    this.weight,
+    this.score,
+  });
+
+  factory MonthDetail.fromJson(Map<String, dynamic> json) => MonthDetail(
+    position: _parseInt(json["position"]),
+    month: json["month"],
+    year: _parseInt(json["year"]),
+    monthNum: _parseInt(json["monthNum"]),
+    less30: _parseDouble(json["less30"]),
+    avg: _parseDouble(json["avg"]),
+    more30: _parseDouble(json["more30"]),
+    rainfall: _parseDouble(json["rainfall"]),
+    condition: json["condition"],
+    conditionValue: _parseInt(json["conditionValue"]),
+    weight: _parseInt(json["weight"]),
+    score: _parseInt(json["score"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "position": position,
+    "month": month,
+    "year": year,
+    "monthNum": monthNum,
+    "less30": less30,
+    "avg": avg,
+    "more30": more30,
+    "rainfall": rainfall,
+    "condition": condition,
+    "conditionValue": conditionValue,
+    "weight": weight,
+    "score": score,
+  };
+}
+
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }
 
 class Station {
@@ -227,14 +329,22 @@ class Station {
 class StationLog {
   final String? stationName;
   final String? sid;
+  final dynamic distance;
   final String? status;
   final String? reason;
 
-  StationLog({this.stationName, this.sid, this.status, this.reason});
+  StationLog({
+    this.stationName,
+    this.sid,
+    this.distance,
+    this.status,
+    this.reason,
+  });
 
   factory StationLog.fromJson(Map<String, dynamic> json) => StationLog(
     stationName: json["stationName"],
     sid: json["sid"],
+    distance: json["distance"],
     status: json["status"],
     reason: json["reason"],
   );
@@ -242,6 +352,7 @@ class StationLog {
   Map<String, dynamic> toJson() => {
     "stationName": stationName,
     "sid": sid,
+    "distance": distance,
     "status": status,
     "reason": reason,
   };

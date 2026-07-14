@@ -15,7 +15,7 @@ void main() async {
   await initDependencies();
 
   Map<String, Map<String, String>>? languages =
-  await LanguageController.getLanguages();
+      await LanguageController.getLanguages();
 
   runApp(
     // DevicePreview(
