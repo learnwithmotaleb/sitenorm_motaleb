@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import 'package:flutter/services.dart';
 
 import '../../core/router/route_path.dart';
@@ -14,9 +13,6 @@ import 'plan_card_widget.dart';
 class PaywallScreen extends GetView<PaywallController> {
   const PaywallScreen({super.key});
 
-  // ─── Policy-compliant legal footer ───────────────────────────────────────
-  // Apple requires: price, period, auto-renewal disclosure, Privacy Policy, Terms
-  // Google requires: price, frequency, auto-renewal, trial period disclosure
   static String _legalNote() {
     final store = Platform.isIOS ? 'Apple ID' : 'Google Play';
     return 'Subscriptions auto-renew at the stated price unless cancelled at least '
@@ -42,7 +38,7 @@ class PaywallScreen extends GetView<PaywallController> {
         title: const Text('Subscription Required'),
         content: const Text(
           'SiteNorm requires an active subscription to access all features. '
-          'Subscribe now to unlock full access.',
+              'Subscribe now to unlock full access.',
         ),
         actions: [
           TextButton(
@@ -61,13 +57,38 @@ class PaywallScreen extends GetView<PaywallController> {
     );
   }
 
+  Widget _termRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontSize: 12, color: Colors.black87)),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 12, color: Colors.black87),
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  TextSpan(text: value),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Obx(() {
-          // Show loading spinner while offering loads
           if (controller.offering.value == null) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -76,6 +97,8 @@ class PaywallScreen extends GetView<PaywallController> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               children: [
+
+                // ── Close Button ─────────────────────────────────────────
                 Align(
                   alignment: Alignment.topRight,
                   child: IconButton(
@@ -123,7 +146,7 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 // ── Features ─────────────────────────────────────────────
                 ...controller.features.map(
-                  (feature) => Padding(
+                      (feature) => Padding(
                     padding: const EdgeInsets.only(bottom: 18),
                     child: Row(
                       children: [
@@ -149,11 +172,11 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 8),
 
-                // ── Plans ─────────────────────────────────────────────────
+                // ── Plans ────────────────────────────────────────────────
                 PlanCardWidget(
                   title: 'Yearly Subscription',
                   subtitle: controller.yearlyPrice.isNotEmpty
-                      ? '${controller.yearlyPrice}/year'
+                      ? '${controller.yearlyPrice} billed once per year'
                       : 'Loading...',
                   selected: controller.selectedIndex.value == 0,
                   onTap: () => controller.selectPlan(0),
@@ -162,10 +185,57 @@ class PaywallScreen extends GetView<PaywallController> {
                 PlanCardWidget(
                   title: 'Monthly Subscription',
                   subtitle: controller.monthlyPrice.isNotEmpty
-                      ? '${controller.monthlyPrice}/month'
+                      ? '${controller.monthlyPrice} billed every month'
                       : 'Loading...',
                   selected: controller.selectedIndex.value == 1,
                   onTap: () => controller.selectPlan(1),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ── Subscription Terms (Google Play + Apple required) ──────
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Subscription Terms',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _termRow(
+                        'Yearly Plan',
+                        '${controller.yearlyPrice} charged once per year (auto-renews annually)',
+                      ),
+                      _termRow(
+                        'Monthly Plan',
+                        '${controller.monthlyPrice} charged every month (auto-renews monthly)',
+                      ),
+                      _termRow(
+                        'Auto-renewal',
+                        'Subscription automatically renews unless cancelled at least 24 hours before the renewal date',
+                      ),
+                      _termRow(
+                        'Cancel anytime',
+                        'Manage or cancel in your ${Platform.isIOS ? "App Store" : "Google Play"} account settings',
+                      ),
+                      _termRow(
+                        'Required',
+                        'A subscription is required to access all features of this app',
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -175,20 +245,19 @@ class PaywallScreen extends GetView<PaywallController> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed:
-                        controller.loading.value ||
-                            controller.selectedPackage == null
+                    onPressed: controller.loading.value ||
+                        controller.selectedPackage == null
                         ? null
                         : () async {
-                            final success = await controller.subscribe();
-                            if (success) {
-                              AppRouter.route.goNamed(RoutePath.homeScreen);
-                            }
-                          },
+                      final success = await controller.subscribe();
+                      if (success) {
+                        AppRouter.route.goNamed(RoutePath.homeScreen);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
-                      disabledBackgroundColor: AppColors.primaryColor
-                          .withValues(alpha: 0.6),
+                      disabledBackgroundColor:
+                      AppColors.primaryColor.withValues(alpha: 0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -196,43 +265,43 @@ class PaywallScreen extends GetView<PaywallController> {
                     ),
                     child: controller.loading.value
                         ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.white,
-                            ),
-                          )
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.white,
+                      ),
+                    )
                         : const Text(
-                            'Continue',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 8),
 
-                // ── Restore Purchases — Required by Apple ─────────────────
+                // ── Restore Purchases ─────────────────────────────────────
                 TextButton(
                   onPressed: controller.loading.value
                       ? null
                       : () async {
-                          final restored = await controller.restore();
-                          if (restored) {
-                            AppRouter.route.goNamed(RoutePath.homeScreen);
-                          } else {
-                            Get.snackbar(
-                              'Restore',
-                              'No active subscription found.',
-                              backgroundColor: AppColors.darkSurface,
-                              colorText: AppColors.white,
-                            );
-                          }
-                        },
+                    final restored = await controller.restore();
+                    if (restored) {
+                      AppRouter.route.goNamed(RoutePath.homeScreen);
+                    } else {
+                      Get.snackbar(
+                        'Restore',
+                        'No active subscription found.',
+                        backgroundColor: AppColors.darkSurface,
+                        colorText: AppColors.white,
+                      );
+                    }
+                  },
                   child: const Text(
                     'Restore Purchases',
                     style: TextStyle(
@@ -244,7 +313,7 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 8),
 
-                // ── Legal — Auto-renewal disclosure (Apple + Google required) ──
+                // ── Legal Note ────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
@@ -260,7 +329,7 @@ class PaywallScreen extends GetView<PaywallController> {
 
                 const SizedBox(height: 12),
 
-                // ── Privacy Policy & Terms links (Apple + Google required) ──
+                // ── Privacy Policy & Terms ────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
