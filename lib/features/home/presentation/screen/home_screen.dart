@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 /// ---------- CLIMATE REF PERIOD ----------
                 Text(
-                  "${AppStrings.climateReferencePeriod.tr}: 1971-2000",
+                  AppStrings.climateReferencePeriod.tr,
                   style: context.bodySmall.copyWith(
                     color: AppColors.secondaryText,
                   ),

@@ -63,7 +63,10 @@ class RainfallRecordWidget extends StatelessWidget {
           else
             ...records.map((record) {
               final cond = record.condition?.toLowerCase() ?? '';
-              Color statusColor = AppColors.normalColor;
+              // If condition is null/empty, use neutral gray — never imply a category
+              Color statusColor = cond.isEmpty
+                  ? Colors.grey.shade600
+                  : AppColors.normalColor;
               if (cond == 'wet') {
                 statusColor = AppColors.wefColor;
               } else if (cond == 'dry') {
@@ -76,15 +79,17 @@ class RainfallRecordWidget extends StatelessWidget {
                   context,
                   month: record.month ?? '—',
                   less30: record.less30 != null
-                      ? record.less30!.toString()
-                      : '—',
-                  avg: record.avg != null ? record.avg!.toString() : '—',
+                      ? record.less30!.toStringAsFixed(2)
+                      : 'N/A',
+                  avg: record.avg != null
+                      ? record.avg!.toStringAsFixed(2)
+                      : 'N/A',
                   more30: record.more30 != null
-                      ? record.more30!.toString()
-                      : '—',
+                      ? record.more30!.toStringAsFixed(2)
+                      : 'N/A',
                   rainfall: record.rainfall != null
                       ? record.rainfall!.toString()
-                      : '—',
+                      : 'N/A',
                   condition: record.condition ?? '',
                   statusColor: statusColor,
                 ),

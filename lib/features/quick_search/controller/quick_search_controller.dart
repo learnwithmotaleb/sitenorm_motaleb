@@ -11,6 +11,10 @@ import 'package:weather_app/helper/toast/toast_helper.dart';
 import 'package:weather_app/utils/api_urls/api_urls.dart';
 import 'package:weather_app/utils/config/app_config.dart';
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart' as geo;
+
 class QuickSearchController extends GetxController {
   final ApiClient apiClient = sl<ApiClient>();
   final TextEditingController searchController = TextEditingController();
@@ -74,66 +78,127 @@ class QuickSearchController extends GetxController {
   final Rx<ResultSummaryModel> resultSummaryModel = ResultSummaryModel().obs;
   final RxBool reverseGeocodeLoading = false.obs;
 
-  /// Two-step flow:
-  /// Step 1: POST /stations/reverse-geocode {lat, lon, observationDate}
-  ///         → {countyFips, countyName, stateCode, ...}
-  /// Step 2: POST /evaluations/calculate-by-location {state, county, countyFips, observationDate}
+  Future<void> searchAndCalculate() async {
+    final input = searchController.text.trim();
+
+    if (input.isEmpty) {
+      AppToast.error(message: 'Please enter GPS Coordinates or Address');
+      return;
+    }
+
+    final coordRegex = RegExp(
+      r'^([-+]?\d{1,2}(?:\.\d+)?)\s*,\s*([-+]?\d{1,3}(?:\.\d+)?)$',
+    );
+    final match = coordRegex.firstMatch(input);
+
+    double? lat;
+    double? lon;
+
+    if (match != null) {
+      lat = double.tryParse(match.group(1)!);
+      lon = double.tryParse(match.group(2)!);
+
+      if (lat == null || lon == null) {
+        AppToast.error(message: 'Invalid coordinate format.');
+        return;
+      }
+
+      if (lat < -90 || lat > 90) {
+        AppToast.error(message: 'Latitude must be between -90 and 90.');
+        return;
+      }
+      if (lon < -180 || lon > 180) {
+        AppToast.error(message: 'Longitude must be between -180 and 180.');
+        return;
+      }
+    } else {
+      reverseGeocodeLoading.value = true;
+      try {
+        final locations = await geo.locationFromAddress(input);
+        if (locations.isNotEmpty) {
+          lat = locations.first.latitude;
+          lon = locations.first.longitude;
+        } else {
+          throw Exception('No results from native geocoding');
+        }
+      } catch (e) {
+        AppConfig.logger.w(
+          'Native geocoding failed: $e, falling back to Google Maps API',
+        );
+        try {
+          final apiKey = "AIzaSyAszXC1be8aJ37eHuNcBm_-O1clWkPUwV4";
+          final url = Uri.parse(
+            "https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(input)}&key=$apiKey",
+          );
+          final response = await http.get(url);
+
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            if (data['status'] == 'OK') {
+              final results = data['results'] as List;
+              if (results.isNotEmpty) {
+                final location = results[0]['geometry']['location'];
+                lat = (location['lat'] as num).toDouble();
+                lon = (location['lng'] as num).toDouble();
+              } else {
+                AppToast.error(message: 'Address not found.');
+                reverseGeocodeLoading.value = false;
+                return;
+              }
+            } else {
+              AppConfig.logger.e('Google Geocoding API error: ${data}');
+              AppToast.error(message: 'Address not found or invalid.');
+              reverseGeocodeLoading.value = false;
+              return;
+            }
+          } else {
+            AppConfig.logger.e(
+              'Google Geocoding API HTTP error: ${response.statusCode}',
+            );
+            AppToast.error(message: 'Address not found or invalid.');
+            reverseGeocodeLoading.value = false;
+            return;
+          }
+        } catch (fallbackErr) {
+          AppConfig.logger.e("Fallback geocoding failed: $fallbackErr");
+          AppToast.error(
+            message: 'Geocoding failed: Address not found or invalid.',
+          );
+          reverseGeocodeLoading.value = false;
+          return;
+        }
+      }
+    }
+
+    final body = <String, dynamic>{"lat": lat, "lon": lon};
+
+    final date = dateController.text.trim();
+    if (date.isNotEmpty) {
+      body["observationDate"] = date;
+    }
+
+    // Call the existing calculate method which handles its own loading state cleanup
+    await calculate(body: body);
+  }
+
+  /// Single-step flow:
+  /// POST /evaluations/calculate {lat, lon, observationDate}
   ///         → ResultSummaryModel
   Future<void> calculate({required Map<String, dynamic> body}) async {
-    reverseGeocodeLoading.value = true;
+    // Only set loading to true if it wasn't already set by searchAndCalculate
+    if (!reverseGeocodeLoading.value) {
+      reverseGeocodeLoading.value = true;
+    }
 
     try {
-      AppConfig.logger.i('Step 1 — reverse-geocode: $body');
+      AppConfig.logger.i('calculate API call: $body');
 
-      // Step 1: Resolve lat/lon to county info
-      final geoResponse = await apiClient.post(
-        url: ApiUrls.reverseGeocode(),
+      final calcResponse = await apiClient.post(
+        url: ApiUrls.calculate(),
         body: body,
       );
 
-      AppConfig.logger.i('reverse-geocode response: ${geoResponse.data}');
-
-      if (geoResponse.statusCode != 200 && geoResponse.statusCode != 201) {
-        final msg =
-            geoResponse.data['message']?.toString() ??
-            'Failed to resolve location';
-        AppToast.error(message: msg);
-        reverseGeocodeLoading.value = false;
-        return;
-      }
-
-      final geoData = geoResponse.data['data'] as Map<String, dynamic>? ?? {};
-      final countyFips = geoData['countyFips']?.toString() ?? '';
-      final countyName = geoData['countyName']?.toString() ?? '';
-      final stateCode = geoData['stateCode']?.toString() ?? '';
-
-      if (countyFips.isEmpty || stateCode.isEmpty) {
-        AppToast.error(message: 'Could not determine county from coordinates.');
-        reverseGeocodeLoading.value = false;
-        return;
-      }
-
-      // Step 2: Calculate using derived county info
-      final calculateBody = <String, dynamic>{
-        'state': stateCode,
-        'county': countyName,
-        'countyFips': countyFips,
-      };
-
-      if (body['observationDate'] != null) {
-        calculateBody['observationDate'] = body['observationDate'];
-      }
-
-      AppConfig.logger.i('Step 2 — calculate-by-location: $calculateBody');
-
-      final calcResponse = await apiClient.post(
-        url: ApiUrls.calculateByLocation(),
-        body: calculateBody,
-      );
-
-      AppConfig.logger.i(
-        'calculate-by-location response: ${calcResponse.data}',
-      );
+      AppConfig.logger.i('calculate response: ${calcResponse.data}');
 
       if (calcResponse.statusCode == 200 || calcResponse.statusCode == 201) {
         final parsed = ResultSummaryModel.fromJson(calcResponse.data);
@@ -142,6 +207,7 @@ class QuickSearchController extends GetxController {
         Get.find<HomeController>().resultSummaryModel.value = parsed;
         resultSummaryModel.value = parsed;
         reverseGeocodeLoading.value = false;
+
         final successMsg = calcResponse.data['message']?.toString();
         AppToast.success(
           message:
@@ -149,6 +215,7 @@ class QuickSearchController extends GetxController {
               ? 'Location calculated successfully'
               : successMsg,
         );
+
         // Pass lat/lon so ResultScreen can pin the marker correctly
         final lat = (body['lat'] as num?)?.toDouble();
         final lon = (body['lon'] as num?)?.toDouble();

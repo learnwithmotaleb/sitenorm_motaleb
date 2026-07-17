@@ -14,6 +14,8 @@ import 'package:weather_app/utils/app_strings/app_strings.dart';
 import 'package:weather_app/utils/color/app_colors.dart';
 import 'package:weather_app/utils/extension/base_extension.dart';
 
+import '../../../../helper/icons_healper/icons_helper.dart';
+
 class ResultScreen extends StatefulWidget {
   final double? latitude;
   final double? longitude;
@@ -115,6 +117,26 @@ class _ResultScreenState extends State<ResultScreen> {
   void _showResultInfo() {
     final resultData = _homeController.resultSummaryModel.value.data;
 
+    // Determine color and icon based on simpleLabel
+    Color labelColor = AppColors.normalColor;
+    IconData labelIcon = Icons.cloud_outlined;
+
+    final label = resultData?.simpleLabel?.toUpperCase() ?? '';
+
+    if (label == 'WET') {
+      labelColor = AppColors.wefColor;
+      labelIcon = Icons.water_drop_outlined;
+    } else if (label == 'DRY') {
+      labelColor = AppColors.dryColor;
+      labelIcon = Icons.wb_sunny_outlined;
+    } else if (label == 'NORMAL') {
+      labelColor = AppColors.normalColor;
+      labelIcon = Icons.cloud_outlined;
+    } else if (label == 'UNKNOWN' || label.isEmpty) {
+      labelColor = Colors.grey;
+      labelIcon = Icons.help_outline;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -156,7 +178,7 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
             Gap(4.h),
             Text(
-              resultData?.period ?? "March - April 2025",
+              resultData?.period ?? "No evaluation period available",
               style: context.bodyMedium.copyWith(
                 color: AppColors.secondaryText,
               ),
@@ -178,26 +200,27 @@ class _ResultScreenState extends State<ResultScreen> {
                     children: [
                       // Icon Circle
                       Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF0D7B92), // Teal color
+                        width: 48.w,
+                        height: 48.w,
+                        decoration: BoxDecoration(
+                          color: labelColor,
                           shape: BoxShape.circle,
-                        ),
+                        ),//34.0522,-118.2437
                         child: Icon(
-                          Icons.cloud_outlined,
+                          getDeterminationIcon(resultData?.determination),
                           color: Colors.white,
-                          size: 24.sp,
-                        ), // Replace with SVG if needed
+                          size: 28.sp,
+                        ),
                       ),
                       Gap(12.w),
                       // WET Text
                       Text(
                         resultData?.simpleLabel?.toUpperCase() ??
-                            AppStrings.wet.tr, // "WET"
+                          "INSUFFICIENT DATA", // "WET"
                         style: context.titleLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontSize: 16
                         ),
                       ),
                     ],
@@ -205,7 +228,9 @@ class _ResultScreenState extends State<ResultScreen> {
                   Gap(12.h),
                   // Score
                   Text(
-                    "${AppStrings.weightedScore.tr} (${resultData?.totalScore ?? 0} out of ${resultData?.maxScore ?? 0})",
+                    (resultData?.totalScore != null && resultData?.maxScore != null)
+                      ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} out of ${resultData.maxScore})"
+                      : "Not enough monthly data to calculate a score",
                     style: context.bodyMedium.copyWith(color: Colors.white),
                   ),
                 ],
@@ -234,12 +259,12 @@ class _ResultScreenState extends State<ResultScreen> {
 
             /// ---------- FOOTER ----------
             Text(
-              "${AppStrings.wetsStation.tr}: ${resultData?.station?.name ?? 'Unknown'}",
+              "${AppStrings.wetsStation.tr} ${resultData?.station?.name ?? 'Unknown'}",
               style: context.bodySmall.copyWith(color: AppColors.secondaryText),
             ),
             Gap(4.h),
             Text(
-              "${AppStrings.climateReferencePeriod.tr}: ${resultData?.climateReferencePeriod ?? '1971-2000'}",
+              AppStrings.climateReferencePeriod.tr,
               style: context.bodySmall.copyWith(color: AppColors.secondaryText),
             ),
             Gap(10.h),

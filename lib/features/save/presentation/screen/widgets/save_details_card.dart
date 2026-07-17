@@ -69,14 +69,16 @@ class SaveDetailsCard extends StatelessWidget {
                 ),
                 Gap(16.h),
                 Text(
-                  "${AppStrings.weightedScore.tr} (${resultData?.totalScore ?? 0} Out Of ${resultData?.maxScore ?? 0})",
+                  (resultData?.totalScore != null && resultData?.maxScore != null)
+                      ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} Out Of ${resultData.maxScore})"
+                      : "Not enough monthly data to calculate a score",
                   style: context.bodyMedium.copyWith(
                     color: AppColors.secondaryText,
                   ),
                 ),
                 Gap(4.h),
                 Text(
-                  resultData?.period ?? '—',
+                  resultData?.period ?? 'No evaluation period available',
                   style: context.bodyMedium.copyWith(
                     color: AppColors.secondaryText,
                   ),
@@ -94,20 +96,41 @@ class SaveDetailsCard extends StatelessWidget {
             Positioned(
               top: 0,
               right: 0,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: Color(0xFF14291B), // Dark Green pill background
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  AppStrings.evaluated.tr,
-                  style: context.labelMedium.copyWith(
-                    color: AppColors.successColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              child: resultData?.determination != null
+                  ? Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 6.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF14291B), // Dark Green
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        AppStrings.evaluated.tr,
+                        style: context.labelMedium.copyWith(
+                          color: AppColors.successColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 6.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B2000), // Dark amber
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        'Incomplete',
+                        style: context.labelMedium.copyWith(
+                          color: const Color(0xFFFFA500),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),

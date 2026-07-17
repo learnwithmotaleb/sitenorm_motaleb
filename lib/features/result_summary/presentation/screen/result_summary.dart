@@ -76,7 +76,9 @@ class ResultSummaryScreen extends StatelessWidget {
                   context.pushNamed(RoutePath.referenceScreen);
                 },
                 child: Text(
-                  "${AppStrings.climateReferencePeriod.tr}: ${resultData?.climateReferencePeriod ?? '1971-2000'}",
+                  resultData?.climateReferencePeriod != null
+                      ? "${AppStrings.climateReferencePeriod.tr}: ${resultData!.climateReferencePeriod}"
+                      : AppStrings.climateReferencePeriod.tr,
                   style: context.bodySmall.copyWith(
                     color: AppColors.secondaryText,
                     fontWeight: FontWeight.w500,

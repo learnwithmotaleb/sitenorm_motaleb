@@ -23,7 +23,6 @@ class QuickSearchScreen extends StatefulWidget {
 class _QuickSearchScreenState extends State<QuickSearchScreen> {
   final QuickSearchController _controller = Get.put(QuickSearchController());
   late final HomeController _homeController;
-  final TextEditingController _dateController = TextEditingController();
 
   @override
   void initState() {
@@ -36,7 +35,6 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
 
   @override
   void dispose() {
-    _dateController.dispose();
     // Do NOT call _controller.dispose() — GetX manages the lifecycle
     // of controllers registered via Get.put(). Manually disposing causes
     // crashes in release mode.
@@ -74,7 +72,8 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
 
             CustomTextField(
               controller: _controller.searchController,
-              hintText: '33.77261, -95.81259',
+              hintText:
+                  'Enter address or coordinates, e.g. 33.77261, -95.81259',
               validator: TextFieldValidator.required(
                 errorText: 'Please enter GPS Coordinates or Address',
               ),
@@ -87,14 +86,14 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
             ),
             const Gap(16),
             CustomTextField(
-              controller: _dateController,
+              controller: _controller.dateController,
               hintText: "Observation Date",
               fillColor: AppColors.darkBackground,
               readOnly: true,
               onTap: () async {
                 final formattedDate = await DateConverter.selectDate(context);
                 if (formattedDate != null) {
-                  _dateController.text = formattedDate;
+                  _controller.dateController.text = formattedDate;
                 }
               },
               suffixIcon: const Icon(
@@ -177,45 +176,7 @@ class _QuickSearchScreenState extends State<QuickSearchScreen> {
                 text: 'Search',
                 isLoading: _controller.reverseGeocodeLoading.value,
                 onTap: () {
-                  final coordinates = _controller.searchController.text.trim();
-
-                  if (coordinates.isEmpty) {
-                    AppToast.error(
-                      message: 'Please enter GPS coordinates or address',
-                    );
-                    return;
-                  }
-
-                  final parts = coordinates.split(',');
-                  if (parts.length == 2) {
-                    try {
-                      final latitude = double.parse(parts[0].trim());
-                      final longitude = double.parse(parts[1].trim());
-
-                      final body = <String, dynamic>{
-                        "lat": latitude,
-                        "lon": longitude,
-                      };
-
-                      final date = _dateController.text.trim();
-                      if (date.isNotEmpty) {
-                        body["observationDate"] = date;
-                      }
-
-                      // Use QuickSearchController's own calculate method
-                      _controller.calculate(body: body);
-                    } catch (e) {
-                      AppToast.error(
-                        message:
-                            'Invalid coordinate format. Use: latitude, longitude',
-                      );
-                    }
-                  } else {
-                    AppToast.error(
-                      message:
-                          'Invalid coordinate format. Use: latitude, longitude',
-                    );
-                  }
+                  _controller.searchAndCalculate();
                 },
               ),
             ),
