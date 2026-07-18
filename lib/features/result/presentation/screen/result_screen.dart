@@ -207,7 +207,11 @@ class _ResultScreenState extends State<ResultScreen> {
                           shape: BoxShape.circle,
                         ),//34.0522,-118.2437
                         child: Icon(
-                          getDeterminationIcon(resultData?.determination),
+                          (resultData?.determination == null ||
+                                  resultData?.determination?.toUpperCase() ==
+                                      'INSUFFICIENT DATA')
+                              ? Icons.warning_amber_rounded
+                              : labelIcon,
                           color: Colors.white,
                           size: 28.sp,
                         ),

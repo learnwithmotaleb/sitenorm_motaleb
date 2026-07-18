@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context.pushNamed(RoutePath.forgetPasswordScreen);
                       },
                       child: Text(
-                        AppStrings.forgotPassword.tr,
+                        "Forget Password",
                         style: context.labelMedium.copyWith(
                           color: AppColors.primaryText,
                           fontWeight: FontWeight.w600,
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const Gap(60),
                   Text(
-                    AppStrings.dontHaveAnAccount.tr,
+                    "Don't have an accoun?".tr,
                     style: context.labelMedium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.w400,

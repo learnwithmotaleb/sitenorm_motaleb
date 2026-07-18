@@ -36,7 +36,7 @@ class ResultSummaryCard extends StatelessWidget {
         labelIcon = Icons.cloud_outlined;
       } else if (label == 'UNKNOWN' || label.isEmpty) {
         labelColor = Colors.grey;
-        labelIcon = Icons.help_outline;
+        labelIcon = Icons.info;
       }
 
       return Stack(
@@ -63,7 +63,11 @@ class ResultSummaryCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        getDeterminationIcon(resultData?.determination),
+                        (resultData?.determination == null ||
+                                resultData?.determination?.toUpperCase() ==
+                                    'INSUFFICIENT DATA')
+                            ? Icons.warning_amber_rounded
+                            : labelIcon,
                         color: Colors.white,
                         size: 28.sp,
                       ),
@@ -71,21 +75,26 @@ class ResultSummaryCard extends StatelessWidget {
                     Gap(12.w),
                     // Determination label
                     Expanded(
-                      child: Text(
-                        resultData?.determination?.toUpperCase() ?? 'INSUFFICIENT DATA',
-                        style: context.headlineSmall.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 75.w),
+                        child: Text(
+                          resultData?.determination?.toUpperCase() ??
+                              'INSUFFICIENT DATA',
+                          style: context.headlineSmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
                 Gap(16.h),
                 Text(
-                  (resultData?.totalScore != null && resultData?.maxScore != null)
+                  (resultData?.totalScore != null &&
+                          resultData?.maxScore != null)
                       ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} Out Of ${resultData.maxScore})"
                       : "Not enough monthly data to calculate a score",
                   style: context.bodyMedium.copyWith(
@@ -120,12 +129,12 @@ class ResultSummaryCard extends StatelessWidget {
               child: resultData?.determination != null
                   ? Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 6.w,
                         vertical: 6.h,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF14291B),
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         AppStrings.evaluated.tr,
@@ -137,12 +146,12 @@ class ResultSummaryCard extends StatelessWidget {
                     )
                   : Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 6.w,
                         vertical: 6.h,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B2000),
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         'Incomplete',

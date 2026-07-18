@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:weather_app/helper/icons_healper/icons_helper.dart';
 import 'package:weather_app/utils/app_strings/app_strings.dart';
 import 'package:weather_app/utils/color/app_colors.dart';
 import 'package:weather_app/utils/extension/base_extension.dart';
@@ -17,24 +18,36 @@ class SaveDetailsCard extends StatelessWidget {
     return Obx(() {
       final resultData = saveController.saveDetailsModel.value.data;
 
+      // Determine color and icon based on simpleLabel
       Color labelColor = AppColors.normalColor;
+      IconData labelIcon = Icons.cloud_outlined;
+
       final label = resultData?.simpleLabel?.toUpperCase() ?? '';
+
       if (label == 'WET') {
         labelColor = AppColors.wefColor;
+        labelIcon = Icons.water_drop_outlined;
       } else if (label == 'DRY') {
         labelColor = AppColors.dryColor;
+        labelIcon = Icons.wb_sunny_outlined;
+      } else if (label == 'NORMAL') {
+        labelColor = AppColors.normalColor;
+        labelIcon = Icons.cloud_outlined;
+      } else if (label == 'UNKNOWN' || label.isEmpty) {
+        labelColor = Colors.grey;
+        labelIcon = Icons.help_outline;
       }
 
-      return Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(20.w),
-        decoration: BoxDecoration(
-          color: AppColors.darkSurface,
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Stack(
-          children: [
-            Column(
+      return Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20.w),
+            decoration: BoxDecoration(
+              color: AppColors.darkSurface,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -48,7 +61,11 @@ class SaveDetailsCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.cloud_outlined,
+                        (resultData?.determination == null ||
+                                resultData?.determination?.toUpperCase() ==
+                                    'INSUFFICIENT DATA')
+                            ? Icons.warning_amber_rounded
+                            : labelIcon,
                         color: Colors.white,
                         size: 28.sp,
                       ),
@@ -56,20 +73,26 @@ class SaveDetailsCard extends StatelessWidget {
                     Gap(12.w),
                     // Determination Text
                     Expanded(
-                      child: Text(
-                        resultData?.determination?.toUpperCase() ?? '—',
-                        style: context.headlineSmall.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 75.w),
+                        child: Text(
+                          resultData?.determination?.toUpperCase() ??
+                              'INSUFFICIENT DATA',
+                          style: context.headlineSmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
                 Gap(16.h),
                 Text(
-                  (resultData?.totalScore != null && resultData?.maxScore != null)
+                  (resultData?.totalScore != null &&
+                          resultData?.maxScore != null)
                       ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} Out Of ${resultData.maxScore})"
                       : "Not enough monthly data to calculate a score",
                   style: context.bodyMedium.copyWith(
@@ -93,18 +116,21 @@ class SaveDetailsCard extends StatelessWidget {
                   ),
               ],
             ),
-            Positioned(
-              top: 0,
-              right: 0,
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.all(5.w),
               child: resultData?.determination != null
                   ? Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 6.w,
                         vertical: 6.h,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF14291B), // Dark Green
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         AppStrings.evaluated.tr,
@@ -116,12 +142,12 @@ class SaveDetailsCard extends StatelessWidget {
                     )
                   : Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 6.w,
                         vertical: 6.h,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B2000), // Dark amber
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         'Incomplete',
@@ -132,8 +158,8 @@ class SaveDetailsCard extends StatelessWidget {
                       ),
                     ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     });
   }
