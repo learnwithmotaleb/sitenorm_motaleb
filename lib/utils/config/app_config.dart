@@ -8,6 +8,7 @@ class AppConfig {
   static const String baseURL = "https://api.sitenorm.com/api/v1";
   // static const String baseURL = "https://nc5cnwcx-5000.inc1.devtunnels.ms/api/v1";
   static const String fontFamily = "Urbanist";
+  static const String googleMapKey = "AIzaSyAFkrO5JzbDTL0IGb-ObLLKDgjY5BuGZG8";
   static final logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,

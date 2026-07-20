@@ -17,7 +17,8 @@ class SubscriptionPlan {
 
 const String _monthlyAndroid = 'sitenorm_pro_monthly:monthly';
 const String _monthlyIOS = 'basic_monthly';
-const String _yearlyAndroid = 'sitenorm_pro_yearly:yearly';
+
+const String _yearlyAndroid = 'sitenorm_pro_yearly:sitenorm-pro-yearly';
 const String _yearlyIOS = 'premium_yearly';
 
 final List<SubscriptionPlan> kPlans = [
