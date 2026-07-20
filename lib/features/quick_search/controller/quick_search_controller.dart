@@ -126,7 +126,7 @@ class QuickSearchController extends GetxController {
           'Native geocoding failed: $e, falling back to Google Maps API',
         );
         try {
-          final apiKey = "AIzaSyAszXC1be8aJ37eHuNcBm_-O1clWkPUwV4";
+          final apiKey = AppConfig.googleMapKey;
           final url = Uri.parse(
             "https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(input)}&key=$apiKey",
           );
