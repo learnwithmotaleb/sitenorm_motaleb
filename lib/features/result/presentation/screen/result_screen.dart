@@ -205,7 +205,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         decoration: BoxDecoration(
                           color: labelColor,
                           shape: BoxShape.circle,
-                        ),//34.0522,-118.2437
+                        ), //34.0522,-118.2437
                         child: Icon(
                           (resultData?.determination == null ||
                                   resultData?.determination?.toUpperCase() ==
@@ -220,11 +220,11 @@ class _ResultScreenState extends State<ResultScreen> {
                       // WET Text
                       Text(
                         resultData?.simpleLabel?.toUpperCase() ??
-                          "INSUFFICIENT DATA", // "WET"
+                            "INSUFFICIENT DATA", // "WET"
                         style: context.titleLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -232,9 +232,10 @@ class _ResultScreenState extends State<ResultScreen> {
                   Gap(12.h),
                   // Score
                   Text(
-                    (resultData?.totalScore != null && resultData?.maxScore != null)
-                      ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} out of ${resultData.maxScore})"
-                      : "Not enough monthly data to calculate a score",
+                    (resultData?.totalScore != null &&
+                            resultData?.maxScore != null)
+                        ? "${AppStrings.weightedScore.tr} (${resultData!.totalScore} out of ${resultData.maxScore})"
+                        : "Not enough monthly data to calculate a score",
                     style: context.bodyMedium.copyWith(color: Colors.white),
                   ),
                 ],
@@ -300,6 +301,29 @@ class _ResultScreenState extends State<ResultScreen> {
             },
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
+
+            // Zoom & Pan
+            zoomGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+
+            // Click for Point
+            onTap: (LatLng position) {
+              setState(() {
+                _markers = {
+                  Marker(
+                    markerId: const MarkerId('selected_point'),
+                    position: position,
+                    infoWindow: InfoWindow(
+                      title: 'Selected Location',
+                      snippet: '${position.latitude}, ${position.longitude}',
+                    ),
+                  ),
+                };
+              });
+              debugPrint(
+                'Lat: ${position.latitude}, Lng: ${position.longitude}',
+              );
+            },
           ),
 
           /// ---------- BACK BUTTON ----------
